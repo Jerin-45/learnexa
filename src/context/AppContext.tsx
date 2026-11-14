@@ -6,10 +6,22 @@ import confetti from 'canvas-confetti';
 
 interface AppContextType {
   currentUser: UserProfile;
+  isAuthenticated: boolean;
+  registerUser: (details: {
+    name: string;
+    email: string;
+    education?: string;
+    experienceLevel?: string;
+    careerGoal?: string;
+    skills?: UserSkill[];
+  }) => void;
+  loginUser: (email: string, name?: string) => void;
+  logout: () => void;
   updateCurrentUser: (updates: Partial<UserProfile>) => void;
   switchProfile: (profileKey: string) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  navigateWithAuth: (tab: string, onRequireAuth?: () => void) => void;
   careers: Career[];
   currentCareer: Career;
   setCareerGoal: (careerId: string) => void;
@@ -35,9 +47,14 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Check if authenticated, default to false for new visitors so they must sign up / register
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('learnexa_is_authenticated') === 'true';
+  });
+
   // Load saved user or default to Alex Morgan
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('learnexa_user') || localStorage.getItem('skillpath_user');
+    const saved = localStorage.getItem('learnexa_user');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -128,6 +145,97 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     runCollaboration();
   }, [currentUser.careerGoal]);
 
+  const registerUser = (details: {
+    name: string;
+    email: string;
+    education?: string;
+    experienceLevel?: string;
+    careerGoal?: string;
+    skills?: UserSkill[];
+  }) => {
+    const defaultSkills: UserSkill[] = details.skills && details.skills.length > 0
+      ? details.skills
+      : [
+          { name: "HTML & CSS", level: "Beginner", years: 0.5, verified: false },
+          { name: "JavaScript", level: "Beginner", years: 0.5, verified: false }
+        ];
+
+    const newUser: UserProfile = {
+      id: "usr_" + Math.random().toString(36).substring(2, 9),
+      name: details.name.trim() || "Student Learner",
+      email: details.email.trim(),
+      education: details.education || "University Student",
+      careerGoal: details.careerGoal || "full-stack-developer",
+      skills: defaultSkills,
+      experienceLevel: details.experienceLevel || "Beginner",
+      projects: ["Initial Portfolio Project"],
+      roadmapProgress: {},
+      assessmentScores: {},
+      weeklyHours: 12,
+      streakDays: 1
+    };
+
+    setCurrentUser(newUser);
+    setIsAuthenticated(true);
+    localStorage.setItem('learnexa_is_authenticated', 'true');
+    localStorage.setItem('learnexa_user', JSON.stringify(newUser));
+    setActiveTab('dashboard');
+
+    confetti({
+      particleCount: 120,
+      spread: 90,
+      origin: { y: 0.5 }
+    });
+    showNotification(`Welcome to Learnexa, ${newUser.name}! Your personalized roadmap has been initialized 🚀`);
+
+    runCollaboration({
+      skills: newUser.skills,
+      careerId: newUser.careerGoal,
+      experienceLevel: newUser.experienceLevel,
+      projects: newUser.projects,
+      roadmapProgress: {},
+      assessmentScores: {},
+      weeklyHours: 12
+    });
+  };
+
+  const loginUser = (email: string, name?: string) => {
+    setIsAuthenticated(true);
+    localStorage.setItem('learnexa_is_authenticated', 'true');
+    if (name) {
+      setCurrentUser(prev => ({ ...prev, name, email }));
+    } else {
+      setCurrentUser(prev => ({ ...prev, email }));
+    }
+    setActiveTab('dashboard');
+    showNotification(`Welcome back, ${name || currentUser.name}!`);
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.setItem('learnexa_is_authenticated', 'false');
+    setActiveTab('landing');
+    showNotification('You have signed out. Welcome back anytime!');
+  };
+
+  const navigateWithAuth = (tab: string, onRequireAuth?: () => void) => {
+    // Anyone can freely view Home ('landing') and Roadmaps ('roadmap')
+    if (tab === 'landing' || tab === 'roadmap') {
+      setActiveTab(tab);
+      return;
+    }
+
+    // Entering Dashboard, Skills, Careers, Progress requires authentication
+    if (isAuthenticated) {
+      setActiveTab(tab);
+    } else {
+      showNotification('Please register your student details or sign in to enter your dashboard!');
+      if (onRequireAuth) {
+        onRequireAuth();
+      }
+    }
+  };
+
   const updateCurrentUser = (updates: Partial<UserProfile>) => {
     setCurrentUser(prev => ({ ...prev, ...updates }));
     showNotification('Profile updated successfully!');
@@ -136,7 +244,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const switchProfile = (profileKey: string) => {
     if (DEMO_PROFILES[profileKey]) {
       setCurrentUser(DEMO_PROFILES[profileKey]);
-      showNotification(`Switched profile to ${DEMO_PROFILES[profileKey].name}!`);
+      setIsAuthenticated(true);
+      localStorage.setItem('learnexa_is_authenticated', 'true');
+      showNotification(`Loaded demo profile: ${DEMO_PROFILES[profileKey].name}!`);
     }
   };
 
@@ -247,10 +357,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     <AppContext.Provider
       value={{
         currentUser,
+        isAuthenticated,
+        registerUser,
+        loginUser,
+        logout,
         updateCurrentUser,
         switchProfile,
         activeTab,
         setActiveTab,
+        navigateWithAuth,
         careers,
         currentCareer,
         setCareerGoal,

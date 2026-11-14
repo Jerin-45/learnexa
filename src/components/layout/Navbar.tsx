@@ -7,7 +7,6 @@ import {
   GitFork, 
   Bot, 
   BarChart3, 
-  MessageSquare, 
   Menu, 
   X, 
   Sun, 
@@ -15,42 +14,53 @@ import {
   UserCircle, 
   ChevronDown,
   CheckCircle2,
-  Wand2
+  Wand2,
+  Lock,
+  LogOut,
+  User
 } from 'lucide-react';
 
 interface NavbarProps {
-  onOpenAuth: (mode?: 'login' | 'signup') => void;
+  onOpenAuth: (mode?: 'login' | 'signup', defaultEmail?: string) => void;
   onOpenProfile: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenProfile }) => {
   const { 
     currentUser, 
+    isAuthenticated,
+    logout,
+    navigateWithAuth,
     switchProfile, 
     activeTab, 
     setActiveTab, 
     darkMode, 
     toggleDarkMode, 
-    toggleChat,
-    isAnalyzing
+    toggleChat
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   const navLinks = [
-    { id: 'landing', label: 'Home' },
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'skills', label: 'Skill Analysis', icon: Wand2 },
-    { id: 'careers', label: 'Career Matching', icon: Compass },
-    { id: 'roadmap', label: 'Roadmap', icon: GitFork },
-    { id: 'agents', label: 'Multi-Agent AI', icon: Bot, badge: '4 Agents' },
-    { id: 'progress', label: 'Progress & Quizzes', icon: BarChart3 },
+    { id: 'landing', label: 'Home', public: true },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, public: false },
+    { id: 'skills', label: 'Skill Analysis', icon: Wand2, public: false },
+    { id: 'careers', label: 'Career Matching', icon: Compass, public: false },
+    { id: 'roadmap', label: 'Roadmap', icon: GitFork, public: true },
+    { id: 'agents', label: 'Multi-Agent AI', icon: Bot, badge: '4 Agents', public: false },
+    { id: 'progress', label: 'Progress & Quizzes', icon: BarChart3, public: false },
   ];
+
+  const handleNavClick = (linkId: string) => {
+    navigateWithAuth(linkId, () => onOpenAuth('signup'));
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
         {/* Brand Logo */}
         <div 
           onClick={() => setActiveTab('landing')}
@@ -79,18 +89,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenProfile }) => 
           {navLinks.map(link => {
             const Icon = link.icon;
             const isActive = activeTab === link.id;
+            const isLocked = !isAuthenticated && !link.public;
+
             return (
               <button
                 key={link.id}
-                onClick={() => setActiveTab(link.id)}
-                className={`relative px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                onClick={() => handleNavClick(link.id)}
+                className={`relative px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
                   isActive
-                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50/80 dark:bg-brand-950/50 shadow-sm'
+                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50/80 dark:bg-brand-950/50 shadow-sm font-bold'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-800/50'
                 }`}
+                title={isLocked ? 'Register or Sign In to access' : link.label}
               >
                 {Icon && <Icon className="w-4 h-4" />}
                 <span>{link.label}</span>
+                {isLocked && (
+                  <Lock className="w-3 h-3 text-slate-400" />
+                )}
                 {link.badge && (
                   <span className="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 px-1.5 py-0.2 rounded font-semibold">
                     {link.badge}
@@ -126,129 +142,134 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenProfile }) => 
             {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
           </button>
 
-          {/* Demo Profile Switcher Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all"
-            >
-              <div className="w-7 h-7 rounded-lg gradient-brand flex items-center justify-center text-xs font-bold text-white shadow-sm">
-                {currentUser.name.charAt(0)}
-              </div>
-              <div className="text-left hidden sm:block">
-                <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight truncate max-w-[100px]">
-                  {currentUser.name.split(' ')[0]}
-                </p>
-                <p className="text-[10px] text-brand-600 dark:text-brand-400 font-medium leading-none">
-                  Demo
-                </p>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
-
-            {profileDropdownOpen && (
-              <div 
-                className="absolute right-0 mt-2 w-64 rounded-2xl glass-panel shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2"
-                onMouseLeave={() => setProfileDropdownOpen(false)}
+          {/* Conditional Profile / Auth Button */}
+          {isAuthenticated ? (
+            /* Logged-In User Profile Menu */
+            <div className="relative">
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl border border-brand-500/30 bg-brand-50/50 dark:bg-brand-950/40 hover:bg-brand-100/60 dark:hover:bg-brand-900/40 transition-all shadow-sm"
               >
-                <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                    Switch Hackathon Persona
+                <div className="w-7 h-7 rounded-lg gradient-brand flex items-center justify-center text-xs font-bold text-white shadow-sm">
+                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="text-left hidden sm:block">
+                  <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight truncate max-w-[110px]">
+                    {currentUser.name.split(' ')[0]}
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                    Instantly load different student career profiles:
+                  <p className="text-[10px] text-brand-600 dark:text-brand-400 font-medium leading-none">
+                    Active Student
                   </p>
                 </div>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </button>
 
-                <div className="p-1.5 space-y-1">
-                  <button
-                    onClick={() => { switchProfile('alex'); setProfileDropdownOpen(false); }}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between ${
-                      currentUser.id === 'usr_alex_01'
-                        ? 'bg-brand-50 dark:bg-brand-950/70 text-brand-700 dark:text-brand-300 font-bold'
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <div>
-                      <p className="font-semibold">Alex Morgan</p>
-                      <p className="text-[10px] text-slate-500">Full Stack Dev • 3 Skills</p>
+              {profileDropdownOpen && (
+                <div 
+                  className="absolute right-0 mt-2 w-72 rounded-2xl glass-panel shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2"
+                  onMouseLeave={() => setProfileDropdownOpen(false)}
+                >
+                  <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800">
+                    <p className="text-xs font-extrabold text-slate-900 dark:text-white">
+                      {currentUser.name}
+                    </p>
+                    <p className="text-[11px] text-slate-500 truncate">
+                      {currentUser.email}
+                    </p>
+                    <div className="mt-1.5 inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300">
+                      Goal: {currentUser.careerGoal.replace('-', ' ')}
                     </div>
-                    {currentUser.id === 'usr_alex_01' && <CheckCircle2 className="w-4 h-4 text-brand-600" />}
-                  </button>
+                  </div>
 
-                  <button
-                    onClick={() => { switchProfile('sarah'); setProfileDropdownOpen(false); }}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between ${
-                      currentUser.id === 'usr_sarah_02'
-                        ? 'bg-brand-50 dark:bg-brand-950/70 text-brand-700 dark:text-brand-300 font-bold'
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <div>
-                      <p className="font-semibold">Sarah Chen</p>
-                      <p className="text-[10px] text-slate-500">AI Engineer • Python Master</p>
-                    </div>
-                    {currentUser.id === 'usr_sarah_02' && <CheckCircle2 className="w-4 h-4 text-brand-600" />}
-                  </button>
+                  <div className="p-1.5 space-y-1">
+                    <button
+                      onClick={() => { setActiveTab('dashboard'); setProfileDropdownOpen(false); }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+                    >
+                      <LayoutDashboard className="w-4 h-4 text-brand-600" />
+                      <span>Student Dashboard</span>
+                    </button>
 
-                  <button
-                    onClick={() => { switchProfile('david'); setProfileDropdownOpen(false); }}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between ${
-                      currentUser.id === 'usr_david_03'
-                        ? 'bg-brand-50 dark:bg-brand-950/70 text-brand-700 dark:text-brand-300 font-bold'
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <div>
-                      <p className="font-semibold">David Kim</p>
-                      <p className="text-[10px] text-slate-500">Cybersecurity • Linux/Networks</p>
+                    <button
+                      onClick={() => { onOpenProfile(); setProfileDropdownOpen(false); }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+                    >
+                      <UserCircle className="w-4 h-4 text-purple-600" />
+                      <span>Edit Profile & Skills</span>
+                    </button>
+                  </div>
+
+                  {/* Switch Demo Personas for Quick Hackathon Testing */}
+                  <div className="px-3 pt-2 pb-1 border-t border-slate-100 dark:border-slate-800">
+                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">
+                      Hackathon Demo Switcher:
+                    </p>
+                    <div className="grid grid-cols-3 gap-1">
+                      <button
+                        onClick={() => { switchProfile('alex'); setProfileDropdownOpen(false); }}
+                        className="py-1 px-1 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 text-slate-700 dark:text-slate-300 text-center"
+                      >
+                        Alex
+                      </button>
+                      <button
+                        onClick={() => { switchProfile('sarah'); setProfileDropdownOpen(false); }}
+                        className="py-1 px-1 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 text-slate-700 dark:text-slate-300 text-center"
+                      >
+                        Sarah
+                      </button>
+                      <button
+                        onClick={() => { switchProfile('david'); setProfileDropdownOpen(false); }}
+                        className="py-1 px-1 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 text-slate-700 dark:text-slate-300 text-center"
+                      >
+                        David
+                      </button>
                     </div>
-                    {currentUser.id === 'usr_david_03' && <CheckCircle2 className="w-4 h-4 text-brand-600" />}
-                  </button>
+                  </div>
+
+                  {/* Log Out Button */}
+                  <div className="pt-1 mt-1 border-t border-slate-100 dark:border-slate-800 px-2">
+                    <button
+                      onClick={() => { logout(); setProfileDropdownOpen(false); }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
                 </div>
-
-                <div className="pt-1 mt-1 border-t border-slate-100 dark:border-slate-800 px-2">
-                  <button
-                    onClick={() => { onOpenProfile(); setProfileDropdownOpen(false); }}
-                    className="w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
-                  >
-                    <UserCircle className="w-4 h-4 text-slate-500" />
-                    <span>Edit Profile & Goals</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Auth Controls: Sign In & Sign Up */}
-          <button
-            onClick={() => onOpenAuth('login')}
-            className="hidden sm:inline-flex px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-          >
-            Sign In
-          </button>
-
-          <button
-            onClick={() => onOpenAuth('signup')}
-            className="hidden md:inline-flex px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 border border-brand-500/50 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-all"
-          >
-            Sign Up
-          </button>
-
-          {/* Direct Dashboard CTA */}
-          {activeTab === 'landing' ? (
-            <button
-              onClick={() => setActiveTab('dashboard')}
-              className="px-4 py-2 rounded-xl text-xs font-bold gradient-brand shadow-md shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.02] transition-all"
-            >
-              Dashboard
-            </button>
+              )}
+            </div>
           ) : (
+            /* Unauthenticated Visitor Controls */
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onOpenAuth('login')}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              >
+                Sign In
+              </button>
+
+              <button
+                onClick={() => onOpenAuth('signup')}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold gradient-brand text-white shadow-md shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.02] transition-all"
+              >
+                Sign Up Free
+              </button>
+            </div>
+          )}
+
+          {/* Quick Dashboard Entry Button */}
+          {activeTab === 'landing' && (
             <button
-              onClick={() => onOpenAuth('login')}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              onClick={() => handleNavClick('dashboard')}
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                isAuthenticated
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90'
+                  : 'border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
             >
-              Auth / Sync
+              {!isAuthenticated && <Lock className="w-3.5 h-3.5 text-slate-400" />}
+              <span>Dashboard</span>
             </button>
           )}
 
@@ -256,6 +277,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenProfile }) => 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label="Toggle Navigation Menu"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -268,16 +290,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenProfile }) => 
           {navLinks.map(link => {
             const Icon = link.icon;
             const isActive = activeTab === link.id;
+            const isLocked = !isAuthenticated && !link.public;
+
             return (
               <button
                 key={link.id}
-                onClick={() => {
-                  setActiveTab(link.id);
-                  setMobileMenuOpen(false);
-                }}
+                onClick={() => handleNavClick(link.id)}
                 className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-between ${
                   isActive
-                    ? 'gradient-brand shadow-sm'
+                    ? 'gradient-brand text-white shadow-sm'
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
@@ -285,28 +306,47 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenProfile }) => 
                   {Icon && <Icon className="w-4 h-4" />}
                   <span>{link.label}</span>
                 </div>
-                {link.badge && (
-                  <span className="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 px-1.5 py-0.5 rounded font-semibold">
-                    {link.badge}
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {isLocked && <Lock className="w-3.5 h-3.5 text-slate-400" />}
+                  {link.badge && (
+                    <span className="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 px-1.5 py-0.5 rounded font-semibold">
+                      {link.badge}
+                    </span>
+                  )}
+                </div>
               </button>
             );
           })}
 
-          <div className="pt-2 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-2">
-            <button
-              onClick={() => { onOpenAuth('login'); setMobileMenuOpen(false); }}
-              className="w-full py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-center"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => { onOpenAuth('signup'); setMobileMenuOpen(false); }}
-              className="w-full py-2 rounded-xl text-xs font-bold gradient-brand text-white text-center shadow-sm"
-            >
-              Sign Up Free
-            </button>
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+            {isAuthenticated ? (
+              <div className="space-y-2">
+                <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                  <span>{currentUser.name} ({currentUser.careerGoal})</span>
+                  <button 
+                    onClick={() => { logout(); setMobileMenuOpen(false); }}
+                    className="text-rose-500 text-xs font-bold hover:underline"
+                  >
+                    Log Out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => { onOpenAuth('login'); setMobileMenuOpen(false); }}
+                  className="w-full py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-center"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => { onOpenAuth('signup'); setMobileMenuOpen(false); }}
+                  className="w-full py-2 rounded-xl text-xs font-bold gradient-brand text-white text-center shadow-sm"
+                >
+                  Register Free
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

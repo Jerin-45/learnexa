@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
@@ -13,16 +13,30 @@ import { MentorChatbot } from './components/chat/MentorChatbot';
 import { AssessmentModal } from './components/assessment/AssessmentModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { ProfileSettingsModal } from './components/profile/ProfileSettingsModal';
-import { CheckCircle2, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 const MainContent: React.FC = () => {
-  const { activeTab, notification } = useApp();
-  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'login' | 'signup' }>({ isOpen: false, mode: 'login' });
+  const { activeTab, setActiveTab, isAuthenticated, notification, showNotification } = useApp();
+  const [authModal, setAuthModal] = useState<{ 
+    isOpen: boolean; 
+    mode: 'login' | 'signup';
+    defaultEmail?: string;
+  }>({ isOpen: false, mode: 'signup', defaultEmail: '' });
+  
   const [profileModalOpen, setProfileModalOpen] = useState(false);
 
-  const openAuth = (mode: 'login' | 'signup' = 'login') => {
-    setAuthModal({ isOpen: true, mode });
+  const openAuth = (mode: 'login' | 'signup' = 'signup', defaultEmail: string = '') => {
+    setAuthModal({ isOpen: true, mode, defaultEmail });
   };
+
+  // Route protection: If user is not authenticated and tries to visit dashboard/skills/careers/agents/progress
+  useEffect(() => {
+    if (!isAuthenticated && !['landing', 'roadmap'].includes(activeTab)) {
+      setActiveTab('landing');
+      setAuthModal({ isOpen: true, mode: 'signup', defaultEmail: '' });
+      showNotification('Please register your student details or sign in to access your dashboard!');
+    }
+  }, [isAuthenticated, activeTab]);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 selection:bg-brand-500 selection:text-white transition-colors duration-200">
@@ -51,13 +65,14 @@ const MainContent: React.FC = () => {
       <AuthModal 
         isOpen={authModal.isOpen} 
         initialMode={authModal.mode} 
+        initialEmail={authModal.defaultEmail}
         onClose={() => setAuthModal(prev => ({ ...prev, isOpen: false }))} 
       />
       <ProfileSettingsModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
 
       {/* Global Notification Banner */}
       {notification && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-200">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-200 pointer-events-none">
           <div className="px-5 py-3 rounded-2xl glass-panel border border-brand-500/40 text-slate-900 dark:text-white shadow-2xl flex items-center gap-2.5 text-xs font-bold">
             <Sparkles className="w-4 h-4 text-brand-500 animate-pulse" />
             <span>{notification}</span>

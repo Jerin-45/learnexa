@@ -37,23 +37,33 @@ import {
 } from 'lucide-react';
 
 interface LandingPageProps {
-  onOpenAuth?: (mode?: 'login' | 'signup') => void;
+  onOpenAuth?: (mode?: 'login' | 'signup', defaultEmail?: string) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
-  const { setActiveTab, careers, setCareerGoal, updateCurrentUser, switchProfile, showNotification } = useApp();
+  const { 
+    setActiveTab, 
+    careers, 
+    setCareerGoal, 
+    updateCurrentUser, 
+    switchProfile, 
+    showNotification,
+    isAuthenticated,
+    navigateWithAuth
+  } = useApp();
 
   const [heroEmail, setHeroEmail] = useState('');
 
   const handleHeroEnroll = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!heroEmail) return;
-    updateCurrentUser({
-      email: heroEmail,
-      name: heroEmail.split('@')[0]
-    });
-    showNotification(`Welcome to Learnexa, ${heroEmail.split('@')[0]}!`);
-    setActiveTab('dashboard');
+    if (!heroEmail.trim()) return;
+    if (isAuthenticated) {
+      setActiveTab('dashboard');
+    } else if (onOpenAuth) {
+      onOpenAuth('signup', heroEmail.trim());
+    } else {
+      navigateWithAuth('dashboard');
+    }
   };
 
   const features = [
@@ -219,9 +229,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </div>
 
         {/* 2. FLOATING REALISTIC STUDENT DASHBOARD SHOWCASE MOCKUP (EXACT MATCH TO IMAGE 1) */}
-        <div className="max-w-6xl mx-auto px-4 pt-12 animate-float">
+        <div className="max-w-6xl mx-auto px-4 pt-12 animate-float relative group">
           <div className="rounded-3xl p-1 bg-gradient-to-b from-slate-200/80 via-white to-slate-200/80 dark:from-slate-700 dark:via-slate-900 dark:to-slate-800 shadow-2xl shadow-brand-500/10">
-            <div className="rounded-[22px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 overflow-hidden text-left shadow-inner">
+            <div className="rounded-[22px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 overflow-hidden text-left shadow-inner relative">
               
               {/* Window Controls Bar */}
               <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-900/60">
@@ -231,9 +241,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
                   <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
                   <span className="text-[11px] font-mono text-slate-400 ml-2">app.learnexa.ai/dashboard</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Live AI Mesh Active</span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Live AI Mesh Active</span>
+                  </div>
+                  <button
+                    onClick={() => navigateWithAuth('dashboard', () => onOpenAuth && onOpenAuth('signup'))}
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold gradient-brand text-white shadow hover:scale-105 transition-all flex items-center gap-1"
+                  >
+                    {!isAuthenticated && <Lock className="w-3 h-3" />}
+                    <span>{isAuthenticated ? 'Open Full Dashboard →' : 'Register to Enter →'}</span>
+                  </button>
                 </div>
               </div>
 
@@ -250,7 +269,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
 
                   <div className="space-y-1 text-xs font-semibold">
                     <button 
-                      onClick={() => setActiveTab('dashboard')}
+                      onClick={() => navigateWithAuth('dashboard', () => onOpenAuth && onOpenAuth('signup'))}
                       className="w-full text-left px-3 py-2 rounded-xl bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-300 font-bold flex items-center gap-2"
                     >
                       <BarChart3 className="w-4 h-4" />
@@ -264,7 +283,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
                       <span>My Roadmaps</span>
                     </button>
                     <button 
-                      onClick={() => setActiveTab('progress')}
+                      onClick={() => navigateWithAuth('progress', () => onOpenAuth && onOpenAuth('signup'))}
                       className="w-full text-left px-3 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
                     >
                       <Award className="w-4 h-4" />
@@ -748,16 +767,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
               <button
-                onClick={() => onOpenAuth ? onOpenAuth('signup') : setActiveTab('dashboard')}
+                onClick={() => {
+                  if (isAuthenticated) {
+                    setActiveTab('dashboard');
+                  } else if (onOpenAuth) {
+                    onOpenAuth('signup');
+                  } else {
+                    navigateWithAuth('dashboard');
+                  }
+                }}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-white text-slate-900 font-extrabold text-sm shadow-xl hover:bg-slate-100 hover:scale-105 transition-all"
               >
-                Sign Up for Free
+                {isAuthenticated ? 'Go to Student Dashboard →' : 'Register Student Details Free →'}
               </button>
               <button
-                onClick={() => onOpenAuth ? onOpenAuth('login') : setActiveTab('dashboard')}
+                onClick={() => {
+                  if (isAuthenticated) {
+                    setActiveTab('roadmap');
+                  } else if (onOpenAuth) {
+                    onOpenAuth('login');
+                  } else {
+                    navigateWithAuth('dashboard');
+                  }
+                }}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-white/20 border border-white/30 text-white font-extrabold text-sm hover:bg-white/30 transition-all"
               >
-                Sign In to Account
+                {isAuthenticated ? 'Explore Roadmaps' : 'Sign In to Account'}
               </button>
             </div>
           </div>
