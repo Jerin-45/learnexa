@@ -7,7 +7,7 @@
     "dev": "node scripts/dev.js",
     "server": "node server/index.js",
     "start": "node scripts/start.js",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && node scripts/copy-404.js",
     "preview": "vite preview"
   },
   "dependencies": {
