@@ -1,17 +1,26 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { CAREERS_DATA } from './data/careers.js';
 import { ASSESSMENTS_DATA } from './data/assessments.js';
 import { MultiAgentSystem } from './agents/orchestrator.js';
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static frontend build if available
+const distPath = path.join(__dirname, '..', 'dist');
+app.use(express.static(distPath));
 
 const agentSystem = new MultiAgentSystem(process.env.GEMINI_API_KEY);
 
@@ -272,6 +281,13 @@ app.post('/api/auth/signup', (req, res) => {
   });
 });
 
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'API route not found' });
+  }
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
 app.listen(PORT, () => {
-  console.log(`🚀 SkillPath AI Backend Server listening on http://localhost:${PORT}`);
+  console.log(`🚀 SkillPath AI Full-Stack Server listening on http://localhost:${PORT}`);
 });

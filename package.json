@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev.js",
     "server": "node server/index.js",
-    "start": "concurrently -k \"node server/index.js\" \"vite\"",
+    "start": "node scripts/start.js",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
