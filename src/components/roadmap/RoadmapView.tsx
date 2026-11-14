@@ -1,35 +1,35 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { 
-  GitFork, 
-  CheckCircle2, 
-  Clock, 
-  BookOpen, 
-  Award, 
-  Zap, 
-  ExternalLink, 
-  Download, 
-  Layers, 
-  Check, 
-  Code2, 
-  ChevronDown, 
-  ChevronUp, 
-  Bot, 
-  Sparkles, 
-  Info, 
-  ArrowDown, 
-  Target, 
-  FileCheck2, 
-  X 
+import {
+  GitFork,
+  CheckCircle2,
+  Clock,
+  BookOpen,
+  Award,
+  Zap,
+  ExternalLink,
+  Download,
+  Layers,
+  Check,
+  Code2,
+  ChevronDown,
+  ChevronUp,
+  Bot,
+  Sparkles,
+  Info,
+  ArrowDown,
+  Target,
+  FileCheck2,
+  X
 } from 'lucide-react';
 import { ROLE_ROADMAPS, RoadmapTopicNode, RoadmapSection } from '../../data/roadmapGraphData';
 
 export const RoadmapView: React.FC = () => {
-  const { 
-    currentUser, 
-    currentCareer, 
-    setCareerGoal, 
-    openAssessment, 
+  const {
+    currentUser,
+    currentCareer,
+    setCareerGoal,
+    openAssessment,
     showNotification,
     toggleChat
   } = useApp();
@@ -79,7 +79,7 @@ export const RoadmapView: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
-      
+
       {/* 1. TOP HEADER & ROLE SELECTOR */}
       <div className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -131,11 +131,10 @@ export const RoadmapView: React.FC = () => {
                   setSelectedRoleId(role.roleId);
                   setSelectedTrack('All Tracks');
                 }}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
-                  isSelected
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${isSelected
                     ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-sm'
                     : 'bg-white dark:bg-[#121212] border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400'
-                }`}
+                  }`}
               >
                 <span>{role.roleTitle}</span>
                 {isSelected && (
@@ -202,11 +201,10 @@ export const RoadmapView: React.FC = () => {
             <button
               key={track}
               onClick={() => setSelectedTrack(track)}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                selectedTrack === track
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${selectedTrack === track
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs'
                   : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700'
-              }`}
+                }`}
             >
               {track}
             </button>
@@ -216,7 +214,7 @@ export const RoadmapView: React.FC = () => {
 
       {/* 3. VISUAL NODE GRAPH / FLOWCHART */}
       <div className="panel rounded-3xl p-6 sm:p-10 space-y-12 bg-white dark:bg-[#0E0E0E] relative min-h-[600px] border border-neutral-200 dark:border-neutral-800">
-        
+
         {/* Sequence */}
         <div className="space-y-12 max-w-4xl mx-auto">
           {activeRoleGraph.sections.map((section) => {
@@ -239,11 +237,10 @@ export const RoadmapView: React.FC = () => {
                       <div
                         key={node.id}
                         onClick={() => setInspectedNode(node)}
-                        className={`group relative p-4 rounded-xl cursor-pointer transition-all duration-200 border-2 select-none flex flex-col justify-between ${
-                          isDone
+                        className={`group relative p-4 rounded-xl cursor-pointer transition-all duration-200 border-2 select-none flex flex-col justify-between ${isDone
                             ? 'bg-amber-300 dark:bg-amber-400 text-neutral-950 border-emerald-500 shadow-sm'
                             : 'bg-amber-400 hover:bg-amber-300 text-neutral-950 border-amber-500 hover:border-neutral-900 shadow-sm hover:-translate-y-0.5'
-                        }`}
+                          }`}
                       >
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between">
@@ -253,11 +250,10 @@ export const RoadmapView: React.FC = () => {
                             <button
                               type="button"
                               onClick={(e) => toggleNodeCompletion(e, node.id)}
-                              className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-                                isDone 
-                                  ? 'bg-emerald-600 text-white font-bold' 
+                              className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${isDone
+                                  ? 'bg-emerald-600 text-white font-bold'
                                   : 'bg-neutral-950/20 hover:bg-neutral-950/40 text-neutral-900'
-                              }`}
+                                }`}
                               title={isDone ? "Completed" : "Mark as completed"}
                             >
                               <Check className="w-3 h-3 stroke-[3]" />
@@ -291,11 +287,10 @@ export const RoadmapView: React.FC = () => {
                 {section.checkpoint && (
                   <div
                     onClick={() => setInspectedNode(section.checkpoint)}
-                    className={`relative p-4 rounded-xl cursor-pointer transition-all duration-200 border-2 select-none group max-w-2xl mx-auto ${
-                      completedNodeIds[section.checkpoint.id]
+                    className={`relative p-4 rounded-xl cursor-pointer transition-all duration-200 border-2 select-none group max-w-2xl mx-auto ${completedNodeIds[section.checkpoint.id]
                         ? 'bg-neutral-950 text-white border-emerald-500 shadow-md'
                         : 'bg-neutral-900 hover:bg-neutral-850 text-white border-neutral-700 hover:border-amber-400 shadow-md hover:-translate-y-0.5'
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="space-y-1">
@@ -316,11 +311,10 @@ export const RoadmapView: React.FC = () => {
                         <button
                           type="button"
                           onClick={(e) => toggleNodeCompletion(e, section.checkpoint!.id)}
-                          className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-all ${
-                            completedNodeIds[section.checkpoint.id]
+                          className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-all ${completedNodeIds[section.checkpoint.id]
                               ? 'bg-emerald-600 text-white'
                               : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700'
-                          }`}
+                            }`}
                         >
                           {completedNodeIds[section.checkpoint.id] ? '✓ Done' : 'Mark Finished'}
                         </button>
@@ -352,9 +346,8 @@ export const RoadmapView: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-fade-in">
           <div className="w-full max-w-xl rounded-2xl panel shadow-modal dark:shadow-modal-dark overflow-hidden flex flex-col max-h-[85vh]">
             {/* Modal Header */}
-            <div className={`p-4 flex items-center justify-between ${
-              inspectedNode.type === 'topic' ? 'bg-amber-400 text-neutral-950' : 'bg-neutral-900 text-white'
-            }`}>
+            <div className={`p-4 flex items-center justify-between ${inspectedNode.type === 'topic' ? 'bg-amber-400 text-neutral-950' : 'bg-neutral-900 text-white'
+              }`}>
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-neutral-950" />
                 <div>
@@ -367,8 +360,8 @@ export const RoadmapView: React.FC = () => {
                 </div>
               </div>
 
-              <button 
-                onClick={() => setInspectedNode(null)} 
+              <button
+                onClick={() => setInspectedNode(null)}
                 className="p-1 rounded hover:bg-black/10 transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -395,17 +388,17 @@ export const RoadmapView: React.FC = () => {
                   </span>
                   <div className="space-y-1.5">
                     {inspectedNode.courses.map((course, cIdx) => (
-                      <div 
-                        key={cIdx} 
+                      <div
+                        key={cIdx}
                         className="p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 flex items-center justify-between"
                       >
                         <div>
                           <p className="font-semibold text-neutral-900 dark:text-white">{course.name}</p>
                           <p className="text-[10px] text-neutral-400">{course.provider} • {course.duration}</p>
                         </div>
-                        <a 
-                          href={course.url} 
-                          target="_blank" 
+                        <a
+                          href={course.url}
+                          target="_blank"
                           rel="noreferrer"
                           className="btn-secondary px-2.5 py-1 text-xs"
                         >
@@ -439,7 +432,7 @@ export const RoadmapView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    toggleNodeCompletion({ stopPropagation: () => {} } as any, inspectedNode.id);
+                    toggleNodeCompletion({ stopPropagation: () => { } } as any, inspectedNode.id);
                     setInspectedNode(null);
                   }}
                   className="btn-primary"
