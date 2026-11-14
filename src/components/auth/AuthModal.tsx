@@ -20,17 +20,20 @@ import {
   Cpu,
   BarChart3,
   Palette,
-  ShieldAlert
+  ShieldAlert,
+  Eye,
+  EyeOff,
+  KeyRound,
+  RotateCcw
 } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: 'login' | 'signup' | 'supabase';
+  initialMode?: 'login' | 'signup' | 'forgot' | 'supabase';
   initialEmail?: string;
 }
 
-// Preset skills per career goal to make registration effortless
 const CAREER_SUGGESTED_SKILLS: Record<string, string[]> = {
   'full-stack-developer': ['HTML & CSS', 'JavaScript', 'React.js', 'Node.js', 'Git', 'SQL', 'TypeScript', 'Tailwind CSS'],
   'ai-engineer': ['Python', 'Linear Algebra', 'NumPy', 'Machine Learning', 'PyTorch', 'Data Analysis', 'TensorFlow', 'LLMs'],
@@ -54,8 +57,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     showNotification 
   } = useApp();
 
-  const [mode, setMode] = useState<'login' | 'signup' | 'supabase'>(initialMode);
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'supabase'>(initialMode);
   const [signupStep, setSignupStep] = useState<1 | 2>(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [resetSent, setResetSent] = useState(false);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -79,13 +85,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setEmail(initialEmail);
       }
       setSignupStep(1);
+      setResetSent(false);
     }
   }, [isOpen, initialMode, initialEmail]);
 
-  // When career changes, update default suggested skills
   useEffect(() => {
     if (CAREER_SUGGESTED_SKILLS[selectedCareer]) {
-      // Pick first 2-3 skills as starting selection
       setSelectedSkills(CAREER_SUGGESTED_SKILLS[selectedCareer].slice(0, 3));
     }
   }, [selectedCareer]);
@@ -114,6 +119,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     if (!email) return;
     loginUser(email, name || email.split('@')[0]);
     onClose();
+  };
+
+  const handleForgotPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setResetSent(true);
+    showNotification(`Password reset link dispatched to ${email}`);
   };
 
   const handleProceedToStep2 = (e: React.FormEvent) => {
@@ -157,125 +169,137 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-xl rounded-3xl glass-panel shadow-2xl border border-brand-500/30 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div className="w-full max-w-xl rounded-2xl bg-white dark:bg-[#121212] border border-neutral-200 dark:border-neutral-800 shadow-modal dark:shadow-modal-dark overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Header Bar */}
-        <div className="p-5 gradient-brand flex items-center justify-between text-white shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white animate-pulse" />
+        <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between shrink-0 bg-neutral-50/50 dark:bg-neutral-900/40">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-sm">
+              <Sparkles className="w-4 h-4 text-white dark:text-black" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base leading-tight">
-                {mode === 'signup' ? 'Student Registration & Career Onboarding' : mode === 'login' ? 'Student Sign In' : 'Cloud Database Config'}
+              <h3 className="font-semibold text-sm text-neutral-900 dark:text-white leading-tight">
+                {mode === 'signup' && 'Create Your Student Account'}
+                {mode === 'login' && 'Sign in to Learnexa'}
+                {mode === 'forgot' && 'Reset Your Password'}
+                {mode === 'supabase' && 'Database Configuration'}
               </h3>
-              <p className="text-[11px] text-white/80">
-                {mode === 'signup' 
-                  ? 'Register your profile to unlock your personalized AI learning dashboard' 
-                  : 'Welcome back to your personalized career roadmap'}
+              <p className="text-[11px] text-neutral-500">
+                {mode === 'signup' && 'Register your details to unlock your personalized AI learning roadmap'}
+                {mode === 'login' && 'Enter your credentials to access your student dashboard'}
+                {mode === 'forgot' && 'We will send a secure recovery link to your inbox'}
+                {mode === 'supabase' && 'Connect your distributed Supabase PostgreSQL instance'}
               </p>
             </div>
           </div>
           <button 
             onClick={onClose} 
-            className="p-1.5 rounded-xl hover:bg-white/20 transition-colors text-white"
+            className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
             aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Tab switchers */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 text-xs font-bold shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
+        {/* Mode Navigation Tabs */}
+        <div className="flex border-b border-neutral-200 dark:border-neutral-800 text-xs font-medium shrink-0 bg-neutral-50/30 dark:bg-neutral-900/20">
           <button
             type="button"
-            onClick={() => setMode('signup')}
-            className={`flex-1 py-3 text-center transition-colors flex items-center justify-center gap-2 ${
+            onClick={() => { setMode('signup'); setSignupStep(1); }}
+            className={`flex-1 py-2.5 text-center transition-colors flex items-center justify-center gap-1.5 ${
               mode === 'signup'
-                ? 'border-b-2 border-brand-600 text-brand-600 dark:text-brand-400 bg-white dark:bg-slate-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-b-2 border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold bg-white dark:bg-[#121212]'
+                : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300'
             }`}
           >
-            <span>Register & Onboard</span>
-            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300">
-              Required
-            </span>
+            <span>Register</span>
           </button>
           <button
             type="button"
             onClick={() => setMode('login')}
-            className={`flex-1 py-3 text-center transition-colors ${
+            className={`flex-1 py-2.5 text-center transition-colors ${
               mode === 'login'
-                ? 'border-b-2 border-brand-600 text-brand-600 dark:text-brand-400 bg-white dark:bg-slate-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-b-2 border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold bg-white dark:bg-[#121212]'
+                : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300'
             }`}
           >
-            Sign In
+            <span>Sign In</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('forgot')}
+            className={`py-2.5 px-4 text-center transition-colors ${
+              mode === 'forgot'
+                ? 'border-b-2 border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold bg-white dark:bg-[#121212]'
+                : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300'
+            }`}
+          >
+            <span>Reset Password</span>
           </button>
           <button
             type="button"
             onClick={() => setMode('supabase')}
-            className={`py-3 px-4 text-center transition-colors ${
+            className={`py-2.5 px-4 text-center transition-colors ${
               mode === 'supabase'
-                ? 'border-b-2 border-brand-600 text-brand-600 dark:text-brand-400 bg-white dark:bg-slate-900'
-                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-b-2 border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold bg-white dark:bg-[#121212]'
+                : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300'
             }`}
           >
-            Supabase
+            <span>Cloud DB</span>
           </button>
         </div>
 
-        {/* Modal Scrollable Content */}
+        {/* Modal Scrollable Body */}
         <div className="p-6 overflow-y-auto space-y-5">
           
-          {/* ===================== SIGN UP / REGISTRATION ===================== */}
+          {/* ===================== SIGN UP ===================== */}
           {mode === 'signup' && (
             <div>
-              {/* Progress Steps Header */}
-              <div className="mb-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              {/* Stepper Header */}
+              <div className="mb-5 flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800/80 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                     signupStep === 1 
-                      ? 'bg-brand-600 text-white' 
-                      : 'bg-emerald-500 text-white'
+                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900' 
+                      : 'bg-emerald-600 text-white'
                   }`}>
-                    {signupStep === 2 ? <Check className="w-3.5 h-3.5" /> : '1'}
+                    {signupStep === 2 ? <Check className="w-3 h-3" /> : '1'}
                   </div>
-                  <span className={`text-xs font-bold ${signupStep === 1 ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
-                    1. Student Details
+                  <span className={`text-xs font-semibold ${signupStep === 1 ? 'text-neutral-900 dark:text-white' : 'text-neutral-400'}`}>
+                    1. Account Credentials
                   </span>
                 </div>
-                <div className="h-0.5 w-12 bg-slate-200 dark:bg-slate-700" />
+                <div className="h-[1px] w-12 bg-neutral-200 dark:border-neutral-800" />
                 <div className="flex items-center gap-2">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                     signupStep === 2 
-                      ? 'bg-brand-600 text-white shadow-md shadow-brand-500/30' 
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900' 
+                      : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500'
                   }`}>
                     2
                   </div>
-                  <span className={`text-xs font-bold ${signupStep === 2 ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
+                  <span className={`text-xs font-semibold ${signupStep === 2 ? 'text-neutral-900 dark:text-white' : 'text-neutral-400'}`}>
                     2. Career & Skills
                   </span>
                 </div>
               </div>
 
-              {/* STEP 1: Personal and Academic Info */}
+              {/* STEP 1: Account Information */}
               {signupStep === 1 && (
-                <form onSubmit={handleProceedToStep2} className="space-y-4 animate-in fade-in">
+                <form onSubmit={handleProceedToStep2} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
                       Full Name <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <User className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
                       <input
                         type="text"
                         placeholder="e.g. Alex Morgan or Aarav Patel"
                         value={name}
                         onChange={e => setName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="input-field pl-10"
                         required
                         autoFocus
                       />
@@ -283,48 +307,57 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      Email Address <span className="text-rose-500">*</span>
+                    <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                      Student / Professional Email <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
                       <input
                         type="email"
                         placeholder="student@university.edu"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="input-field pl-10"
                         required
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      Password <span className="text-slate-400 font-normal">(for future logins)</span>
+                    <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                      Password <span className="text-neutral-400 font-normal">(8+ characters)</span>
                     </label>
                     <div className="relative">
-                      <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
                       <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         placeholder="••••••••••••"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="input-field pl-10 pr-10"
+                        required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      Education / Academic Qualification
+                    <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                      Academic Background
                     </label>
                     <div className="relative">
-                      <GraduationCap className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <GraduationCap className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
                       <select
                         value={education}
                         onChange={e => setEducation(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="input-field pl-10 font-medium"
                       >
                         <option value="B.Tech / B.S. in Computer Science">B.Tech / B.S. in Computer Science</option>
                         <option value="B.E. Information Technology">B.E. Information Technology</option>
@@ -341,10 +374,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     {education === 'Other' && (
                       <input
                         type="text"
-                        placeholder="Enter your university degree or program"
+                        placeholder="Enter degree or major"
                         value={customEducation}
                         onChange={e => setCustomEducation(e.target.value)}
-                        className="mt-2 w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="input-field mt-2"
                       />
                     )}
                   </div>
@@ -352,7 +385,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full py-3 rounded-xl font-extrabold text-xs gradient-brand text-white shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
+                      className="btn-primary w-full py-2.5"
                     >
                       <span>Continue: Choose Career & Skills</span>
                       <ArrowRight className="w-4 h-4" />
@@ -363,12 +396,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               {/* STEP 2: Career Goal & Initial Skills */}
               {signupStep === 2 && (
-                <form onSubmit={handleCompleteRegistration} className="space-y-5 animate-in fade-in">
-                  
-                  {/* Desired Career Role */}
+                <form onSubmit={handleCompleteRegistration} className="space-y-5">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-                      Select Your Target Career Goal <span className="text-rose-500">*</span>
+                    <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                      Target Career Goal <span className="text-rose-500">*</span>
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {careers.map(c => {
@@ -379,12 +410,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                             onClick={() => setSelectedCareer(c.id)}
                             className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2.5 ${
                               isSelected
-                                ? 'border-brand-500 bg-brand-50/70 dark:bg-brand-950/60 shadow-sm'
-                                : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
+                                ? 'border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-900'
+                                : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-white dark:bg-[#121212]'
                             }`}
                           >
                             <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                              isSelected ? 'gradient-brand text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                              isSelected ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'
                             }`}>
                               {c.id === 'full-stack-developer' && <Code2 className="w-4 h-4" />}
                               {c.id === 'ai-engineer' && <Cpu className="w-4 h-4" />}
@@ -393,22 +424,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                               {c.id === 'cybersecurity-analyst' && <ShieldAlert className="w-4 h-4" />}
                             </div>
                             <div className="overflow-hidden">
-                              <p className={`text-xs font-bold truncate ${isSelected ? 'text-brand-700 dark:text-brand-300' : 'text-slate-800 dark:text-slate-200'}`}>
+                              <p className="text-xs font-semibold text-neutral-900 dark:text-white truncate">
                                 {c.title}
                               </p>
-                              <p className="text-[10px] text-slate-400 truncate">{c.category}</p>
+                              <p className="text-[10px] text-neutral-400 truncate">{c.category}</p>
                             </div>
-                            {isSelected && <Check className="w-4 h-4 text-brand-600 ml-auto shrink-0" />}
+                            {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900 dark:text-white ml-auto shrink-0" />}
                           </div>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* Experience Level */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      Your Experience Level
+                    <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                      Experience Level
                     </label>
                     <div className="grid grid-cols-3 gap-2">
                       {(['Beginner', 'Intermediate', 'Advanced'] as const).map(lvl => (
@@ -416,10 +446,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           key={lvl}
                           type="button"
                           onClick={() => setExperienceLevel(lvl)}
-                          className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                          className={`py-2 px-3 rounded-xl text-xs font-medium border transition-all ${
                             experienceLevel === lvl
-                              ? 'border-brand-500 bg-brand-600 text-white shadow-md shadow-brand-500/20'
-                              : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                              ? 'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900'
+                              : 'border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
                           }`}
                         >
                           {lvl}
@@ -428,16 +458,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Existing Skills Selection */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                        Select Your Existing Skills
+                      <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                        Existing Skills (Click to toggle)
                       </label>
-                      <span className="text-[10px] text-slate-400">Click to toggle</span>
+                      <span className="text-[10px] text-neutral-400">{selectedSkills.length} selected</span>
                     </div>
 
-                    <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+                    <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
                       {(CAREER_SUGGESTED_SKILLS[selectedCareer] || []).map(skill => {
                         const active = selectedSkills.includes(skill);
                         return (
@@ -445,10 +474,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                             key={skill}
                             type="button"
                             onClick={() => toggleSkill(skill)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                               active
-                                ? 'bg-brand-600 text-white shadow-sm'
-                                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                                ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+                                : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 hover:border-neutral-400'
                             }`}
                           >
                             <span>{skill}</span>
@@ -458,7 +487,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       })}
                     </div>
 
-                    {/* Add Custom Skill Input */}
                     <div className="mt-2 flex items-center gap-2">
                       <input
                         type="text"
@@ -466,24 +494,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         value={customSkillInput}
                         onChange={e => setCustomSkillInput(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter') handleAddCustomSkill(e); }}
-                        className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="input-field"
                       />
                       <button
                         type="button"
                         onClick={handleAddCustomSkill}
-                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200"
+                        className="btn-secondary px-3 py-2.5"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Submission & Back Buttons */}
-                  <div className="pt-3 flex items-center gap-3">
+                  <div className="pt-2 flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => setSignupStep(1)}
-                      className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+                      className="btn-secondary px-4 py-2.5"
                     >
                       <ArrowLeft className="w-3.5 h-3.5" />
                       <span>Back</span>
@@ -491,9 +518,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                     <button
                       type="submit"
-                      className="flex-1 py-3 rounded-xl font-extrabold text-xs gradient-brand text-white shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
+                      className="btn-primary flex-1 py-2.5"
                     >
-                      <Sparkles className="w-4 h-4 text-white" />
                       <span>Complete Registration & Enter Dashboard</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
@@ -507,70 +533,100 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {mode === 'login' && (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
                   <input
                     type="email"
                     placeholder="student@university.edu"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    className="input-field pl-10"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Password
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setMode('forgot')}
+                    className="text-[11px] text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••••••"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    className="input-field pl-10 pr-10"
+                    required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <label className="flex items-center gap-2 cursor-pointer text-neutral-600 dark:text-neutral-400">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={e => setRememberMe(e.target.checked)}
+                    className="rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
+                  />
+                  <span>Remember this device</span>
+                </label>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl font-extrabold text-xs gradient-brand text-white shadow-md hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
+                className="btn-primary w-full py-2.5"
               >
-                <span>Sign In & Enter Dashboard</span>
+                <span>Sign In & Open Dashboard</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              {/* Hackathon Demo Personas 1-Click Fast Access */}
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block text-center">
-                  Or Test Hackathon Demo Profiles (1-Click Instant Access)
+              {/* Demo Profiles 1-Click Access */}
+              <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800 space-y-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block text-center">
+                  Or Test Demo Hackathon Profiles (1-Click)
                 </span>
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => { switchProfile('alex'); onClose(); }}
-                    className="p-2.5 rounded-xl bg-slate-100 hover:bg-brand-50 dark:bg-slate-800/80 text-[11px] font-bold text-slate-700 dark:text-slate-200 text-center border border-slate-200 dark:border-slate-700 transition-colors"
+                    className="btn-secondary py-2 text-[11px] justify-center"
                   >
                     Alex (Full Stack)
                   </button>
                   <button
                     type="button"
                     onClick={() => { switchProfile('sarah'); onClose(); }}
-                    className="p-2.5 rounded-xl bg-slate-100 hover:bg-brand-50 dark:bg-slate-800/80 text-[11px] font-bold text-slate-700 dark:text-slate-200 text-center border border-slate-200 dark:border-slate-700 transition-colors"
+                    className="btn-secondary py-2 text-[11px] justify-center"
                   >
                     Sarah (AI Eng)
                   </button>
                   <button
                     type="button"
                     onClick={() => { switchProfile('david'); onClose(); }}
-                    className="p-2.5 rounded-xl bg-slate-100 hover:bg-brand-50 dark:bg-slate-800/80 text-[11px] font-bold text-slate-700 dark:text-slate-200 text-center border border-slate-200 dark:border-slate-700 transition-colors"
+                    className="btn-secondary py-2 text-[11px] justify-center"
                   >
                     David (Cyber)
                   </button>
@@ -580,24 +636,94 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <div className="text-center pt-1">
                 <button
                   type="button"
-                  onClick={() => setMode('signup')}
-                  className="text-xs text-brand-600 dark:text-brand-400 font-bold hover:underline"
+                  onClick={() => { setMode('signup'); setSignupStep(1); }}
+                  className="text-xs text-neutral-600 dark:text-neutral-400 font-medium hover:text-neutral-900 dark:hover:text-white transition-colors"
                 >
-                  Don't have an account? Register your details now →
+                  Need a student account? <span className="underline">Register now →</span>
                 </button>
               </div>
             </form>
           )}
 
+          {/* ===================== FORGOT PASSWORD ===================== */}
+          {mode === 'forgot' && (
+            <div className="space-y-4">
+              {resetSent ? (
+                <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-3 text-center">
+                  <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-semibold text-neutral-900 dark:text-white">
+                      Password Reset Link Sent
+                    </h4>
+                    <p className="text-[11px] text-neutral-500 mt-1">
+                      Check your inbox at <span className="font-mono text-neutral-800 dark:text-neutral-200">{email}</span> for instructions to reset your password.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setResetSent(false); setMode('login'); }}
+                    className="btn-secondary w-full py-2 text-xs"
+                  >
+                    Back to Sign In
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-600 dark:text-neutral-400">
+                    Enter the email associated with your Learnexa account and we will send you a secure verification link to reset your password.
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                      Registered Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
+                      <input
+                        type="email"
+                        placeholder="student@university.edu"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        className="input-field pl-10"
+                        required
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn-primary w-full py-2.5"
+                  >
+                    <span>Send Password Reset Link</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+
+                  <div className="text-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setMode('login')}
+                      className="text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+                    >
+                      ← Back to Sign In
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+
           {/* ===================== SUPABASE CONFIG ===================== */}
           {mode === 'supabase' && (
             <form onSubmit={handleSaveSupabase} className="space-y-4">
-              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300">
-                <span className="font-bold">Enterprise Cloud Integration:</span> Enter your Supabase project credentials for distributed synchronization across browsers.
+              <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-600 dark:text-neutral-400">
+                <span className="font-semibold text-neutral-900 dark:text-white">Cloud Database Sync:</span> Connect your live Supabase credentials for real-time distributed state persistence.
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
                   Supabase Project URL
                 </label>
                 <input
@@ -605,12 +731,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   placeholder="https://xyzcompany.supabase.co"
                   value={supabaseUrl}
                   onChange={e => setSupabaseUrl(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="input-field"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
                   Supabase Anon Public Key
                 </label>
                 <input
@@ -618,15 +744,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                   value={supabaseKey}
                   onChange={e => setSupabaseKey(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="input-field"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl font-extrabold text-xs gradient-brand text-white shadow-md hover:scale-[1.01] transition-all"
+                className="btn-primary w-full py-2.5"
               >
-                Save Supabase Cloud Configuration
+                Save Cloud Configuration
               </button>
             </form>
           )}

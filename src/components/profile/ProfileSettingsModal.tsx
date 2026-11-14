@@ -9,9 +9,9 @@ import {
   Compass, 
   FolderGit2, 
   Plus, 
-  Trash2,
-  Save,
-  Sparkles
+  Trash2, 
+  Save, 
+  Sparkles 
 } from 'lucide-react';
 
 interface ProfileSettingsModalProps {
@@ -61,58 +61,82 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-lg rounded-3xl glass-panel shadow-2xl border border-purple-500/30 overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="p-5 gradient-brand flex items-center justify-between text-white">
-          <div className="flex items-center gap-2">
-            <User className="w-5 h-5 text-white" />
-            <h3 className="font-extrabold text-base">Edit Student Profile & Career Goals</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div className="w-full max-w-lg rounded-2xl panel shadow-modal dark:shadow-modal-dark overflow-hidden flex flex-col max-h-[88vh]">
+        
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between shrink-0 bg-neutral-50/50 dark:bg-neutral-900/40">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 flex items-center justify-center">
+              <User className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm text-neutral-900 dark:text-white leading-tight">
+                Profile & Career Goal Settings
+              </h3>
+              <p className="text-[11px] text-neutral-500 font-mono">
+                Update account parameters, target velocity, and project portfolio
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/20 transition-colors">
-            <X className="w-5 h-5" />
+
+          <button 
+            onClick={onClose} 
+            className="p-1 rounded text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
 
+        {/* Form Body */}
         <form onSubmit={handleSave} className="p-6 overflow-y-auto space-y-4 text-xs flex-1">
           <div>
-            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+            <label className="block font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+              Full Name
+            </label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
+              className="input-field"
               required
             />
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+            <label className="block font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+              Email Address
+            </label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
+              className="input-field"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Education</label>
+              <label className="block font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                Academic Background
+              </label>
               <input
                 type="text"
                 value={education}
                 onChange={e => setEducation(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
+                className="input-field"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Desired Career Goal</label>
+              <label className="block font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                Target Role
+              </label>
               <select
                 value={careerGoal}
                 onChange={e => setGoal(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+                className="input-field font-medium"
               >
                 {careers.map(c => (
                   <option key={c.id} value={c.id}>{c.title}</option>
@@ -123,77 +147,92 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOp
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Experience Level</label>
+              <label className="block font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                Experience Tier
+              </label>
               <select
                 value={experienceLevel}
                 onChange={e => setExperienceLevel(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+                className="input-field font-medium"
               >
-                <option value="Beginner">Beginner / Student</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced / Professional</option>
+                <option value="Beginner">Beginner (0-1 yrs)</option>
+                <option value="Intermediate">Intermediate (1-3 yrs)</option>
+                <option value="Advanced">Advanced (3+ yrs)</option>
               </select>
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Weekly Study Hours</label>
+              <label className="block font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                Weekly Study Commitment
+              </label>
               <input
                 type="number"
                 min={2}
                 max={60}
                 value={weeklyHours}
                 onChange={e => setWeeklyHours(Number(e.target.value))}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
+                className="input-field font-mono"
               />
             </div>
           </div>
 
-          {/* Projects */}
-          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <label className="block font-semibold text-slate-700 dark:text-slate-300">Portfolio Projects</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="e.g. Distributed Key-Value Store"
-                value={newProject}
-                onChange={e => setNewProject(e.target.value)}
-                className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleAddProject}
-                className="px-3 py-1.5 rounded-xl bg-brand-600 text-white font-bold text-xs"
-              >
-                Add
-              </button>
-            </div>
-
-            <div className="space-y-1.5 pt-1">
+          {/* Project Portfolio */}
+          <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 space-y-2">
+            <label className="block font-medium text-neutral-700 dark:text-neutral-300">
+              Proof-of-Work Projects
+            </label>
+            <div className="space-y-1.5">
               {projects.map((proj, idx) => (
-                <div key={idx} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-between text-xs">
-                  <span>{proj}</span>
+                <div key={idx} className="p-2 rounded-lg border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 flex items-center justify-between text-xs">
+                  <span className="text-neutral-800 dark:text-neutral-200">{proj}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveProject(idx)}
-                    className="text-slate-400 hover:text-red-500"
+                    className="p-1 text-neutral-400 hover:text-rose-600 transition-colors"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
             </div>
+
+            <div className="flex items-center gap-2 mt-2">
+              <input
+                type="text"
+                placeholder="e.g. Distributed Task Queue in Go"
+                value={newProject}
+                onChange={e => setNewProject(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddProject(); }}}
+                className="input-field"
+              />
+              <button
+                type="button"
+                onClick={handleAddProject}
+                className="btn-secondary px-3 py-2 text-xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-ghost"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="w-full py-2.5 rounded-xl font-bold text-xs gradient-brand text-white shadow-md hover:scale-[1.01] transition-all flex items-center justify-center gap-1.5"
+              className="btn-primary"
             >
-              <Save className="w-4 h-4" />
-              <span>Save & Recalculate Roadmap</span>
+              <Save className="w-3.5 h-3.5" />
+              <span>Save Profile Parameters</span>
             </button>
           </div>
         </form>
+
       </div>
     </div>
   );

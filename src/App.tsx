@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { Preloader } from './components/common/Preloader';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { LandingPage } from './components/landing/LandingPage';
@@ -19,17 +20,17 @@ const MainContent: React.FC = () => {
   const { activeTab, setActiveTab, isAuthenticated, notification, showNotification } = useApp();
   const [authModal, setAuthModal] = useState<{ 
     isOpen: boolean; 
-    mode: 'login' | 'signup';
+    mode: 'login' | 'signup' | 'forgot';
     defaultEmail?: string;
   }>({ isOpen: false, mode: 'signup', defaultEmail: '' });
   
   const [profileModalOpen, setProfileModalOpen] = useState(false);
 
-  const openAuth = (mode: 'login' | 'signup' = 'signup', defaultEmail: string = '') => {
+  const openAuth = (mode: 'login' | 'signup' | 'forgot' = 'signup', defaultEmail: string = '') => {
     setAuthModal({ isOpen: true, mode, defaultEmail });
   };
 
-  // Route protection: If user is not authenticated and tries to visit dashboard/skills/careers/agents/progress
+  // Route protection: If user is not authenticated and tries to visit protected tabs
   useEffect(() => {
     if (!isAuthenticated && !['landing', 'roadmap'].includes(activeTab)) {
       setActiveTab('landing');
@@ -39,7 +40,11 @@ const MainContent: React.FC = () => {
   }, [isAuthenticated, activeTab]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 selection:bg-brand-500 selection:text-white transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-[#FAFAFA] dark:bg-[#0A0A0A] text-[#171717] dark:text-[#EDEDED] antialiased selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-200">
+      
+      {/* Premium Startup Preloader */}
+      <Preloader />
+
       {/* Top Navbar */}
       <Navbar 
         onOpenAuth={openAuth}
@@ -70,11 +75,11 @@ const MainContent: React.FC = () => {
       />
       <ProfileSettingsModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
 
-      {/* Global Notification Banner */}
+      {/* Global Toast Notification */}
       {notification && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-200 pointer-events-none">
-          <div className="px-5 py-3 rounded-2xl glass-panel border border-brand-500/40 text-slate-900 dark:text-white shadow-2xl flex items-center gap-2.5 text-xs font-bold">
-            <Sparkles className="w-4 h-4 text-brand-500 animate-pulse" />
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up pointer-events-none">
+          <div className="px-4 py-2.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-modal dark:shadow-modal-dark flex items-center gap-2 text-xs font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span>{notification}</span>
           </div>
         </div>

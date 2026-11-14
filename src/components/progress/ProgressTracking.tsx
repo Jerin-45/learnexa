@@ -18,12 +18,9 @@ import {
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
-  BarChart, 
-  Bar, 
   XAxis, 
   YAxis, 
   Tooltip, 
-  Cell, 
   LineChart, 
   Line, 
   CartesianGrid 
@@ -48,8 +45,8 @@ export const ProgressTracking: React.FC = () => {
   const availableQuizzes = [
     { skill: "JavaScript", title: "JavaScript ES6+ & Core Architecture", duration: "10 mins", questions: 4 },
     { skill: "React.js", title: "React Component Architecture & Hooks", duration: "10 mins", questions: 3 },
-    { skill: "Node.js", title: "Node.js Architecture & Streams", duration: "10 mins", questions: 2 },
-    { skill: "Python", title: "Python Data Structures & Computational Logic", duration: "10 mins", questions: 2 }
+    { skill: "Node.js", title: "Node.js Architecture & Event Loop", duration: "10 mins", questions: 2 },
+    { skill: "Python", title: "Python Computational Structures & Logic", duration: "10 mins", questions: 2 }
   ];
 
   // Badges
@@ -88,7 +85,7 @@ export const ProgressTracking: React.FC = () => {
     },
     {
       id: "b5",
-      name: "Full Stack Pioneer",
+      name: "Career Pioneer",
       description: "Conquered 70%+ of complete career readiness criteria",
       icon: "🌟",
       unlocked: matchPercentage >= 70,
@@ -113,117 +110,116 @@ export const ProgressTracking: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 animate-in fade-in duration-300">
-      {/* Header */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
+      
+      {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800 mb-2">
-            <BarChart3 className="w-3.5 h-3.5" />
-            <span>Velocity & Verification Telemetry</span>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-neutral font-mono">
+              Telemetry • Velocity & Verification
+            </span>
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-white">
             Progress Tracking & Skill Verification
           </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Quantify your career momentum, take skill quizzes, and unlock verifiable achievement badges.
+          <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
+            Quantify your career momentum, take skill assessments, and unlock verifiable credential badges.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => openAssessment('JavaScript')}
-            className="px-5 py-2.5 rounded-xl font-bold text-xs gradient-brand shadow-lg shadow-brand-500/20 hover:scale-[1.02] transition-all flex items-center gap-2"
-          >
-            <Award className="w-4 h-4 text-white" />
-            <span>Take Skill Assessment</span>
-          </button>
-        </div>
+        <button
+          onClick={() => openAssessment('JavaScript')}
+          className="btn-primary"
+        >
+          <Award className="w-3.5 h-3.5" />
+          <span>Take Skill Assessment</span>
+        </button>
       </div>
 
-      {/* Top 4 KPI Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="glass-card rounded-2xl p-5 space-y-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Overall Completion</span>
-          <p className="text-3xl font-black text-slate-900 dark:text-white">{completionPercentage}%</p>
-          <p className="text-xs text-slate-500">{completedSteps} of {totalSteps} milestones achieved</p>
+      {/* Top 4 Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="panel rounded-xl p-5 space-y-1.5">
+          <span className="text-[10px] font-mono uppercase text-neutral-400">Roadmap Progress</span>
+          <p className="text-2xl font-bold font-mono text-neutral-900 dark:text-white">{completionPercentage}%</p>
+          <p className="text-xs text-neutral-500">{completedSteps} of {totalSteps} milestones done</p>
         </div>
 
-        <div className="glass-card rounded-2xl p-5 space-y-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Target Match Score</span>
-          <p className="text-3xl font-black text-brand-600 dark:text-brand-400">{matchPercentage}%</p>
-          <p className="text-xs text-slate-500">{currentCareer.title}</p>
+        <div className="panel rounded-xl p-5 space-y-1.5">
+          <span className="text-[10px] font-mono uppercase text-neutral-400">Target Match</span>
+          <p className="text-2xl font-bold font-mono text-neutral-900 dark:text-white">{matchPercentage}%</p>
+          <p className="text-xs text-neutral-500">{currentCareer.title}</p>
         </div>
 
-        <div className="glass-card rounded-2xl p-5 space-y-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Weekly Commitment</span>
-          <p className="text-3xl font-black text-purple-600 dark:text-purple-400">{currentUser.weeklyHours} hrs</p>
-          <p className="text-xs text-slate-500">Accelerated Velocity</p>
+        <div className="panel rounded-xl p-5 space-y-1.5">
+          <span className="text-[10px] font-mono uppercase text-neutral-400">Weekly Pace</span>
+          <p className="text-2xl font-bold font-mono text-neutral-900 dark:text-white">{currentUser.weeklyHours}h</p>
+          <p className="text-xs text-neutral-500">Accelerated Velocity</p>
         </div>
 
-        <div className="glass-card rounded-2xl p-5 space-y-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Study Streak</span>
-          <p className="text-3xl font-black text-amber-500 flex items-center gap-1.5">
-            <Flame className="w-7 h-7 fill-amber-500" />
-            {currentUser.streakDays} Days
+        <div className="panel rounded-xl p-5 space-y-1.5">
+          <span className="text-[10px] font-mono uppercase text-neutral-400">Study Streak</span>
+          <p className="text-2xl font-bold font-mono text-neutral-900 dark:text-white flex items-center gap-1.5">
+            <Flame className="w-5 h-5 text-amber-500 fill-amber-500" />
+            <span>{currentUser.streakDays} Days</span>
           </p>
-          <p className="text-xs text-slate-500">Unbroken study discipline</p>
+          <p className="text-xs text-neutral-500">Unbroken consistency</p>
         </div>
       </div>
 
       {/* Interactive Skill Assessment Quizzes Hub */}
-      <div className="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="panel rounded-2xl p-6 sm:p-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-4">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Award className="w-5 h-5 text-purple-600" />
-              Interactive Skill Assessment Quizzes
+            <h3 className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+              <Award className="w-4 h-4 text-neutral-500" />
+              <span>Interactive Skill Quizzes</span>
             </h3>
-            <p className="text-xs text-slate-500">
-              Verify competencies with real-world questions. Scoring 70%+ automatically updates your profile and unlocks badges.
+            <p className="text-xs text-neutral-500 mt-0.5">
+              Verify competencies with real questions. Scoring 70%+ updates your profile and unlocks achievement badges.
             </p>
           </div>
-          <span className="text-xs font-semibold text-brand-600 dark:text-brand-400">
-            Instant grading & feedback
+          <span className="badge-neutral font-mono text-[10px]">
+            Automated Grading
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {availableQuizzes.map(quiz => {
             const userScore = currentUser.assessmentScores[quiz.skill];
 
             return (
               <div 
                 key={quiz.skill}
-                className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex flex-col justify-between space-y-4 hover:border-brand-500/50 transition-colors"
+                className="p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 flex flex-col justify-between space-y-4 hover:border-neutral-400 dark:hover:border-neutral-600 transition-all"
               >
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-extrabold text-brand-600 dark:text-brand-400">{quiz.skill}</span>
-                    <span className="text-[10px] text-slate-400">{quiz.duration}</span>
+                    <span className="font-bold text-neutral-900 dark:text-white">{quiz.skill}</span>
+                    <span className="text-[10px] font-mono text-neutral-400">{quiz.duration}</span>
                   </div>
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-snug">
+                  <h4 className="text-xs text-neutral-600 dark:text-neutral-300 leading-snug">
                     {quiz.title}
                   </h4>
-                  <p className="text-[11px] text-slate-500">{quiz.questions} Architecture Questions</p>
+                  <p className="text-[10px] font-mono text-neutral-400">{quiz.questions} Questions</p>
                 </div>
 
-                <div className="space-y-3 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+                <div className="space-y-2.5 pt-2 border-t border-neutral-200/60 dark:border-neutral-800">
                   {userScore ? (
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400 font-medium">Last Score:</span>
-                      <span className="font-extrabold text-emerald-500">
-                        {userScore.percentage || Math.round((userScore.score / userScore.maxScore) * 100)}% Verified
+                      <span className="text-neutral-400 text-[11px]">Score:</span>
+                      <span className="badge-success text-[10px] font-mono">
+                        {userScore.percentage || Math.round((userScore.score / userScore.maxScore) * 100)}% Pass
                       </span>
                     </div>
                   ) : (
-                    <p className="text-[11px] text-slate-400">Not yet verified</p>
+                    <p className="text-[11px] text-neutral-400 italic">Not yet attempted</p>
                   )}
 
                   <button
                     onClick={() => openAssessment(quiz.skill)}
-                    className="w-full py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-brand-950/70 hover:text-brand-600 transition-colors flex items-center justify-center gap-1.5"
+                    className="btn-primary w-full py-1.5 text-[11px]"
                   >
-                    <Play className="w-3.5 h-3.5 fill-current" />
                     <span>{userScore ? 'Retake Quiz' : 'Start Assessment'}</span>
                   </button>
                 </div>
@@ -233,98 +229,49 @@ export const ProgressTracking: React.FC = () => {
         </div>
       </div>
 
-      {/* Progress Analytics Chart */}
-      <div className="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
-        <div className="flex items-center justify-between">
+      {/* Achievement Badges Matrix */}
+      <div className="panel rounded-2xl p-6 sm:p-8 space-y-6">
+        <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-4">
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-brand-600" />
-              Monthly Growth & Mastery Trend
+            <h3 className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+              <Star className="w-4 h-4 text-neutral-500" />
+              <span>Verifiable Achievement Badges</span>
             </h3>
-            <p className="text-xs text-slate-500">Velocity curve tracking cumulative skill milestone completion</p>
+            <p className="text-xs text-neutral-500 mt-0.5">Proof-of-work milestones earned through verified progress</p>
           </div>
-          <span className="text-xs font-bold text-emerald-500">+30% MoM Acceleration</span>
-        </div>
-
-        <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-              <XAxis dataKey="week" stroke="#94a3b8" fontSize={11} />
-              <YAxis stroke="#94a3b8" fontSize={11} unit="%" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#0f172a', 
-                  borderColor: '#1e293b', 
-                  borderRadius: '12px',
-                  color: '#f8fafc',
-                  fontSize: '12px'
-                }} 
-              />
-              <Line 
-                type="monotone" 
-                dataKey="completion" 
-                stroke="#6366f1" 
-                strokeWidth={3} 
-                dot={{ fill: '#a855f7', strokeWidth: 2, r: 5 }} 
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Achievement Badges Showcase */}
-      <div className="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Award className="w-5 h-5 text-amber-500" />
-              Achievement Badges & Micro-Credentials
-            </h3>
-            <p className="text-xs text-slate-500">Gamified milestone unlocks based on real performance</p>
-          </div>
-          <span className="text-xs font-bold text-brand-600 dark:text-brand-400">
-            {allBadges.filter(b => b.unlocked).length} of {allBadges.length} Unlocked
+          <span className="badge-neutral font-mono text-[10px]">
+            {allBadges.filter(b => b.unlocked).length} / {allBadges.length} Unlocked
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {allBadges.map(badge => (
-            <div 
+            <div
               key={badge.id}
-              className={`p-4 rounded-2xl border transition-all flex items-start gap-3.5 ${
-                badge.unlocked 
-                  ? 'bg-purple-50/40 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800/60 shadow-sm' 
-                  : 'bg-slate-50/50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800 opacity-60'
+              className={`p-4 rounded-xl border flex items-center gap-3.5 transition-all ${
+                badge.unlocked
+                  ? 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-[#121212] shadow-xs'
+                  : 'border-neutral-200/60 dark:border-neutral-800/60 bg-neutral-50/50 dark:bg-neutral-900/20 opacity-60'
               }`}
             >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 ${
-                badge.unlocked 
-                  ? 'bg-gradient-to-br from-purple-500 to-brand-500 text-white shadow-md' 
-                  : 'bg-slate-200 dark:bg-slate-800 text-slate-400'
-              }`}>
+              <div className="text-2xl shrink-0 p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
                 {badge.icon}
               </div>
-
-              <div className="space-y-1">
+              <div className="overflow-hidden">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                  <h4 className="text-xs font-bold text-neutral-900 dark:text-white truncate">
                     {badge.name}
                   </h4>
                   {badge.unlocked ? (
-                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-1.5 py-0.2 rounded">
-                      Earned ✓
-                    </span>
+                    <span className="badge-success text-[9px] py-0">Unlocked</span>
                   ) : (
-                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded flex items-center gap-1">
-                      <Lock className="w-2.5 h-2.5" /> Locked
-                    </span>
+                    <Lock className="w-3 h-3 text-neutral-400" />
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500 leading-snug">
+                <p className="text-[11px] text-neutral-500 truncate mt-0.5">
                   {badge.description}
                 </p>
-                <p className="text-[10px] text-slate-400 font-semibold pt-1">
+                <p className="text-[10px] font-mono text-neutral-400 mt-1">
                   Req: {badge.criteria}
                 </p>
               </div>
@@ -332,6 +279,7 @@ export const ProgressTracking: React.FC = () => {
           ))}
         </div>
       </div>
+
     </div>
   );
 };

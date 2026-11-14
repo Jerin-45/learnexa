@@ -4,57 +4,107 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-[#070b14] dark:text-slate-100 antialiased font-sans transition-colors duration-200;
+    @apply bg-[#FAFAFA] text-[#171717] dark:bg-[#0A0A0A] dark:text-[#EDEDED] antialiased selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black transition-colors duration-200;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Refined scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(115, 115, 115, 0.25);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(115, 115, 115, 0.45);
   }
 }
 
-.glass-panel {
-  @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 shadow-sm;
-}
+@layer components {
+  /* Premium Linear/Vercel Cards */
+  .panel {
+    @apply bg-white dark:bg-[#121212] border border-neutral-200/90 dark:border-neutral-800/90 shadow-sm transition-all;
+  }
 
-.glass-card {
-  @apply bg-white/70 dark:bg-slate-900/60 backdrop-blur-lg border border-slate-200/60 dark:border-slate-800/60 shadow-lg shadow-brand-500/5 hover:border-brand-500/40 transition-all duration-300;
-}
+  .panel-hover {
+    @apply hover:border-neutral-400 dark:hover:border-neutral-700 transition-all duration-200;
+  }
 
-.glass-card-hover {
-  @apply hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300;
-}
+  .panel-subtle {
+    @apply bg-neutral-50/80 dark:bg-neutral-900/60 border border-neutral-200/70 dark:border-neutral-800/70;
+  }
 
-.gradient-brand {
-  @apply bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 text-white;
-}
+  /* Glass/Blur Overlays */
+  .glass-header {
+    @apply bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-md border-b border-neutral-200/80 dark:border-neutral-800/80;
+  }
 
-.gradient-brand-subtle {
-  @apply bg-gradient-to-br from-brand-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900/90 dark:to-purple-950/20;
-}
+  .glass-panel {
+    @apply bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border border-neutral-200/80 dark:border-neutral-800/80 shadow-sm;
+  }
 
-.gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-indigo-500 to-purple-600 dark:from-brand-400 dark:via-indigo-300 dark:to-purple-400;
-}
+  .glass-card {
+    @apply bg-white dark:bg-[#121212] border border-neutral-200/80 dark:border-neutral-800/80 shadow-sm hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200;
+  }
 
-.glow-purple {
-  box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.25);
-}
+  .glass-card-hover {
+    @apply hover:shadow-md hover:-translate-y-0.5 transition-all duration-200;
+  }
 
-.glow-brand {
-  box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.25);
-}
+  /* Primary High-Contrast Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#171717] text-white hover:bg-neutral-800 dark:bg-white dark:text-[#0A0A0A] dark:hover:bg-neutral-200 active:scale-[0.98] transition-all shadow-sm;
+  }
 
-/* Custom modern scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-white text-neutral-800 border border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300 dark:bg-neutral-900 dark:text-neutral-200 dark:border-neutral-800 dark:hover:bg-neutral-800/80 dark:hover:border-neutral-700 active:scale-[0.98] transition-all shadow-sm;
+  }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-100 dark:hover:bg-neutral-800/60 transition-all;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
-  border-radius: 9999px;
-}
+  /* Input Fields */
+  .input-field {
+    @apply w-full px-3.5 py-2.5 rounded-xl text-xs bg-white dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 dark:focus:border-neutral-100 transition-all;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  /* Badges & Status Chips */
+  .badge-neutral {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200 border border-neutral-200/80 dark:border-neutral-700/80;
+  }
+
+  .badge-success {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/80;
+  }
+
+  .badge-danger {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/80;
+  }
+
+  .badge-info {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/80;
+  }
+
+  /* Gradient utilities mapped to high-end monochrome */
+  .gradient-brand {
+    @apply bg-neutral-900 text-white dark:bg-white dark:text-neutral-950;
+  }
+
+  .gradient-brand-subtle {
+    @apply bg-white dark:bg-[#121212];
+  }
+
+  .gradient-text {
+    @apply text-neutral-950 dark:text-white font-black;
+  }
 }
