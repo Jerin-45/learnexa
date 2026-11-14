@@ -1,22 +1,23 @@
-# SkillPath AI – Your Personalized Career Learning Platform
+# Learnexa – Autonomous Career Intelligence Platform
 
-> Modern, AI-powered career learning platform featuring autonomous multi-agent intelligence, adaptive roadmaps, real-time skill gap analysis, and interactive skill assessments. Built for modern tech students and career switchers.
+> Modern, AI-powered career intelligence platform featuring autonomous multi-agent orchestration, adaptive roadmaps, real-time skill gap analysis, and interactive skill assessments. Built for modern tech students and career switchers.
 
 ---
 
 ## 🌟 Key Highlights & Features
 
-### 1. Modern SaaS UI & Design System
-- Professional blue, purple, and white color palette (`brand`, `purple`, `slate`).
-- Glassmorphic panels with backdrop blurs, glowing agent indicators, and micro-interactions.
+### 1. Minimalist White & Black SaaS Design System
+- High-contrast monochromatic design language inspired by Linear, Vercel, and Stripe.
+- High-end preloader on startup with micro-linear progress indicator.
+- Refined typography (Inter & JetBrains Mono), subtle borders, and balanced drop shadows.
 - Seamless Dark & Light theme toggle with local persistence.
 - 100% responsive layout across mobile, tablet, and desktop screens.
 
 ### 2. High-Impact Landing Page
-- **Hero:** "Discover Your Skills. Build Your Future."
-- Interactive Multi-Agent Mesh live preview box.
-- Feature deep-dives (Skill Analysis, Career Matching, Dynamic Roadmap, Adaptive Velocity).
-- In-demand career explorer cards with live salary benchmarks and growth rates.
+- **Hero:** "Unlock your potential with AI-Powered learning" with inline student email enrollment.
+- **Vision & Strategic Goals:** 3 photo-illustrated pillars (Personalized Velocity, Proof-of-Work, Market Calibration).
+- 5-Role interactive roadmap previews.
+- 4-Agent Mesh architecture showcase.
 - Verified student success stories and trust metrics.
 
 ### 3. Student Dashboard
@@ -44,10 +45,11 @@
 - Side-by-side competency matrix: Matched requirements (✓) vs Missing requirements (!).
 - Instant 1-click **"Switch Target Career"** which adaptively re-generates your roadmap.
 
-### 6. Personalized Learning Roadmap
+### 6. Personalized Roadmap (roadmap.sh Architecture)
+- Visual flowchart architecture with **Yellow Topic Nodes** and **Dark Project Checkpoint Nodes**.
 - Sequential, milestone-based learning curriculum customized to your missing skills.
-- Each milestone includes:
-  - Skill name & estimated duration
+- Interactive topic inspection modals with syllabus breakdown, time commitments, and documentation links.
+- Floating AI Tutor widget for immediate roadmap questions.
   - Curated free & accredited courses (freeCodeCamp, Coursera, Frontend Masters, DeepLearning.AI, etc.)
   - Deep-dive documentation and tutorials
   - Practical portfolio capstone project deliverable with tech stack tags
