@@ -7,50 +7,74 @@ import {
   BookOpen, 
   Award, 
   Zap, 
-  ChevronDown, 
-  ChevronUp, 
   ExternalLink, 
-  Lock, 
-  Play, 
-  Sparkles, 
   Download, 
   Layers, 
   Check,
-  Code2
+  Code2,
+  ChevronDown,
+  ChevronUp,
+  Bot,
+  Sparkles,
+  Info,
+  ArrowDown,
+  Target,
+  FileCheck2,
+  X
 } from 'lucide-react';
-import { RoadmapStep } from '../../types';
+import { ROLE_ROADMAPS, RoadmapTopicNode, RoadmapSection } from '../../data/roadmapGraphData';
 
 export const RoadmapView: React.FC = () => {
   const { 
     currentUser, 
     currentCareer, 
-    activeRoadmap, 
-    updateStepStatus, 
-    openAssessment,
-    showNotification
+    setCareerGoal, 
+    openAssessment, 
+    showNotification,
+    toggleChat
   } = useApp();
 
-  const [expandedStepId, setExpandedStepId] = useState<string | null>(activeRoadmap[0]?.id || null);
+  // Active role selected in the roadmap view (defaults to user's careerGoal or full-stack-developer)
+  const [selectedRoleId, setSelectedRoleId] = useState<string>(currentUser.careerGoal || 'full-stack-developer');
+  const [selectedTrack, setSelectedTrack] = useState<string>('All Tracks');
+  const [inspectedNode, setInspectedNode] = useState<RoadmapTopicNode | null>(null);
+  const [infoOpen, setInfoOpen] = useState<boolean>(true);
 
-  const toggleExpand = (stepId: string) => {
-    setExpandedStepId(prev => (prev === stepId ? null : stepId));
+  // Completed node IDs tracked in local state + user roadmap progress
+  const [completedNodeIds, setCompletedNodeIds] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {
+      'node-html': true,
+      'node-css': true,
+      'chk-static-webpages': true,
+      'node-python': true,
+      'node-sql-adv': true,
+      'node-networking': true,
+      'node-figma': true
+    };
+    return initial;
+  });
+
+  const activeRoleGraph = ROLE_ROADMAPS[selectedRoleId] || ROLE_ROADMAPS['full-stack-developer'];
+
+  const toggleNodeCompletion = (e: React.MouseEvent, nodeId: string) => {
+    e.stopPropagation();
+    setCompletedNodeIds(prev => {
+      const updated = { ...prev, [nodeId]: !prev[nodeId] };
+      showNotification(updated[nodeId] ? 'Node marked as Completed! ✓' : 'Node set to In Progress');
+      return updated;
+    });
   };
 
-  const completedCount = activeRoadmap.filter(s => s.status === 'COMPLETED').length;
-  const totalCount = activeRoadmap.length;
-  const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-
-  const handleExportRoadmap = () => {
+  const handleExport = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+      role: activeRoleGraph.roleTitle,
       student: currentUser.name,
-      careerGoal: currentCareer.title,
-      generatedAt: new Date().toISOString(),
-      overallProgress: `${progressPct}%`,
-      milestones: activeRoadmap
+      sections: activeRoleGraph.sections,
+      completedNodes: Object.keys(completedNodeIds).filter(k => completedNodeIds[k])
     }, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `Learnexa_${currentCareer.id}_Roadmap.json`);
+    downloadAnchor.setAttribute("download", `Learnexa_${activeRoleGraph.roleId}_Roadmap.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -58,262 +82,461 @@ export const RoadmapView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-300">
-      {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800 mb-2">
-            <GitFork className="w-3.5 h-3.5" />
-            <span>AI Dynamic Curriculum</span>
-          </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Personalized Learning Roadmap
-          </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Tailored 7-stage learning journey to master <span className="font-bold text-brand-600 dark:text-brand-400">{currentCareer.title}</span>.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExportRoadmap}
-            className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-1.5"
-          >
-            <Download className="w-4 h-4 text-slate-500" />
-            <span>Export Plan</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Overall Progress Progress Bar Card */}
-      <div className="glass-card rounded-3xl p-6 sm:p-7 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-300">
+      {/* 1. TOP HEADER & ROLE SELECTOR (FOR EVERY ROLE) */}
+      <div className="space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Roadmap Progress Overview
-            </span>
-            <p className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
-              {completedCount} of {totalCount} Milestones Completed ({progressPct}%)
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200 dark:border-amber-800 mb-2">
+              <GitFork className="w-3.5 h-3.5" />
+              <span>Interactive Role Flowchart • Inspired by roadmap.sh</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Interactive Career Roadmaps
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+              Select any role below to view its visual node graph, prerequisite topics, and hands-on project checkpoints.
             </p>
           </div>
-          <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300 self-start sm:self-auto">
-            {progressPct >= 100 ? '🎓 Job Ready' : 'In Sprint Progression'}
-          </span>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setCareerGoal(selectedRoleId);
+                showNotification(`Set ${activeRoleGraph.roleTitle} as your active career focus!`);
+              }}
+              className="px-4 py-2.5 rounded-xl gradient-brand text-white font-bold text-xs shadow-md hover:scale-105 transition-all flex items-center gap-1.5"
+            >
+              <Target className="w-4 h-4" />
+              <span>Set as My Career Goal</span>
+            </button>
+
+            <button
+              onClick={handleExport}
+              className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-1.5"
+            >
+              <Download className="w-4 h-4 text-slate-500" />
+              <span>Export</span>
+            </button>
+          </div>
         </div>
 
-        <div className="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">
-          <div 
-            className="bg-gradient-to-r from-brand-600 via-indigo-500 to-purple-600 h-full rounded-full transition-all duration-700"
-            style={{ width: `${progressPct}%` }}
-          />
+        {/* ROLE TABS (ALL 5 ROLES) */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none pt-2">
+          {Object.values(ROLE_ROADMAPS).map(role => {
+            const isSelected = selectedRoleId === role.roleId;
+
+            return (
+              <button
+                key={role.roleId}
+                onClick={() => {
+                  setSelectedRoleId(role.roleId);
+                  setSelectedTrack('All Tracks');
+                }}
+                className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold whitespace-nowrap transition-all duration-200 flex items-center gap-2 ${
+                  isSelected
+                    ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20 ring-2 ring-amber-400/50 scale-[1.02]'
+                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-400'
+                }`}
+              >
+                <span>{role.roleTitle}</span>
+                {isSelected && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-ping" />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Step by Step Roadmap Timeline */}
-      <div className="space-y-4 relative before:absolute before:inset-0 before:left-7 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800 before:hidden sm:before:block">
-        {activeRoadmap.map((step, idx) => {
-          const isExpanded = expandedStepId === step.id;
-          const isCompleted = step.status === 'COMPLETED';
-          const isInProgress = step.status === 'IN_PROGRESS';
-          const isNextUp = step.status === 'NEXT_UP';
+      {/* 2. ROLE INTRO BANNER & ROADMAP.SH LEGEND (MATCHING IMAGE 2) */}
+      <div className="glass-card rounded-3xl p-6 sm:p-7 space-y-6 border border-slate-200/80 dark:border-slate-800">
+        {/* Accordion Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 dark:border-slate-800/80 pb-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+                {activeRoleGraph.roleTitle}
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                {activeRoleGraph.category}
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              {activeRoleGraph.description}
+            </p>
+            <p className="text-[11px] text-slate-500 italic">
+              {activeRoleGraph.targetAudience}
+            </p>
+          </div>
 
-          return (
-            <div 
-              key={step.id} 
-              className={`relative sm:pl-16 transition-all duration-200`}
-            >
-              {/* Timeline Indicator Dot */}
-              <div className="hidden sm:flex absolute left-4 top-6 -translate-x-1/2 w-6 h-6 rounded-full border-2 border-white dark:border-slate-950 items-center justify-center z-10 shadow-sm">
-                {isCompleted ? (
-                  <div className="w-full h-full rounded-full bg-emerald-500 flex items-center justify-center text-white">
-                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  </div>
-                ) : isInProgress ? (
-                  <div className="w-full h-full rounded-full bg-brand-600 animate-pulse flex items-center justify-center text-white">
-                    <span className="w-2 h-2 rounded-full bg-white" />
-                  </div>
-                ) : (
-                  <div className="w-full h-full rounded-full bg-slate-300 dark:bg-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-300 flex items-center justify-center">
-                    {step.stepNumber}
-                  </div>
-                )}
-              </div>
-
-              {/* Main Step Card */}
-              <div className={`glass-card rounded-2xl transition-all ${
-                isCompleted 
-                  ? 'border-emerald-300 dark:border-emerald-900/50 bg-emerald-50/20 dark:bg-emerald-950/10' 
-                  : isInProgress
-                  ? 'border-brand-500 ring-2 ring-brand-500/20 shadow-md'
-                  : ''
-              }`}>
-                {/* Header Row */}
-                <div 
-                  onClick={() => toggleExpand(step.id)}
-                  className="p-5 sm:p-6 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="sm:hidden px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Step {step.stepNumber}
-                    </span>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                          {step.title}
-                        </h3>
-                        {isCompleted && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                            Completed ✓
-                          </span>
-                        )}
-                        {isInProgress && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-100 text-brand-800 dark:bg-brand-950 dark:text-brand-300 animate-pulse">
-                            In Progress
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-500">
-                        Target Skill: <span className="font-semibold text-slate-700 dark:text-slate-300">{step.skill}</span> • Est. Duration: {step.duration}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 self-end sm:self-auto">
-                    <span className="text-xs font-semibold text-brand-600 dark:text-brand-400">
-                      {isExpanded ? 'Collapse' : 'Details'}
-                    </span>
-                    {isExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-slate-400" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-400" />
-                    )}
-                  </div>
+          {/* ROADMAP.SH LEGEND BOX (EXACT VISUAL FROM IMAGE 2) */}
+          <div className="p-4 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5 shrink-0 min-w-[240px]">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
+              Legend / Key
+            </span>
+            <div className="space-y-2 text-xs font-semibold">
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-5 rounded bg-amber-400 border border-amber-500 flex items-center justify-center text-[9px] font-bold text-slate-950">
+                  Topic
                 </div>
-
-                {/* Expanded Details */}
-                {isExpanded && (
-                  <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-6 animate-in fade-in duration-200">
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {step.description}
-                    </p>
-
-                    {/* Section 1: Recommended Courses */}
-                    {step.courses && step.courses.length > 0 && (
-                      <div className="space-y-2.5">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                          <BookOpen className="w-4 h-4 text-purple-600" />
-                          Recommended Free & Accredited Courses
-                        </h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {step.courses.map((course, cIdx) => (
-                            <div 
-                              key={cIdx}
-                              className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-xs"
-                            >
-                              <div>
-                                <p className="font-bold text-slate-900 dark:text-white line-clamp-1">{course.name}</p>
-                                <p className="text-[11px] text-slate-500">{course.provider} • {course.duration}</p>
-                              </div>
-                              <a
-                                href={course.url || '#'}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="p-1.5 rounded-lg text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/80 transition-colors"
-                                title="Open Course"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </a>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Section 2: Tutorials */}
-                    {step.tutorials && step.tutorials.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                          <Code2 className="w-4 h-4 text-brand-600" />
-                          Deep Dive Tutorials & Documentation
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {step.tutorials.map((tut, tIdx) => (
-                            <span 
-                              key={tIdx}
-                              className="px-3 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                            >
-                              • {tut}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Section 3: Practical Hands-On Project */}
-                    {step.project && (
-                      <div className="p-4 rounded-2xl bg-gradient-to-br from-brand-50/70 to-purple-50/70 dark:from-slate-800/80 dark:to-purple-950/20 border border-brand-200/80 dark:border-brand-900/60 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-extrabold text-brand-700 dark:text-brand-300 flex items-center gap-1.5">
-                            <Zap className="w-4 h-4 text-amber-500" />
-                            Milestone Portfolio Deliverable: {step.project.title}
-                          </span>
-                          <span className="text-[10px] text-slate-500">Proof of Work</span>
-                        </div>
-                        <p className="text-xs text-slate-600 dark:text-slate-300">
-                          {step.project.description}
-                        </p>
-                        {step.project.techStack && (
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            {step.project.techStack.map((tech, techIdx) => (
-                              <span 
-                                key={techIdx}
-                                className="px-2 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800"
-                              >
-                                {tech}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Step Action Controls */}
-                    <div className="flex flex-wrap items-center gap-3 pt-2">
-                      <button
-                        onClick={() => updateStepStatus(step.id, isCompleted ? 'IN_PROGRESS' : 'COMPLETED')}
-                        className={`px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
-                          isCompleted
-                            ? 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300'
-                            : 'gradient-brand text-white shadow-md shadow-brand-500/20 hover:scale-[1.02]'
-                        }`}
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>{isCompleted ? 'Mark as Incomplete' : 'Mark Milestone Completed'}</span>
-                      </button>
-
-                      <button
-                        onClick={() => openAssessment(step.skill)}
-                        className="px-4 py-2.5 rounded-xl text-xs font-bold border border-purple-200 dark:border-purple-800/80 hover:bg-purple-50 dark:hover:bg-purple-950/60 text-purple-700 dark:text-purple-300 transition-colors flex items-center gap-1.5"
-                      >
-                        <Award className="w-4 h-4" />
-                        <span>Test Out with {step.skill} Quiz</span>
-                      </button>
-
-                      {!isCompleted && !isInProgress && (
-                        <button
-                          onClick={() => updateStepStatus(step.id, 'IN_PROGRESS')}
-                          className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                        >
-                          Set as Current Focus
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
+                <span className="text-slate-700 dark:text-slate-300">Key topics to learn</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-5 rounded bg-slate-900 border border-slate-700 flex items-center justify-center text-[9px] font-bold text-white">
+                  Proj
+                </div>
+                <span className="text-slate-700 dark:text-slate-300">Project ideas & checkpoints</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-5 rounded border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-[9px] font-bold text-emerald-600">
+                  ✓
+                </div>
+                <span className="text-slate-700 dark:text-slate-300">Verified Completed</span>
               </div>
             </div>
-          );
-        })}
+          </div>
+        </div>
+
+        {/* Tracks Filter Bar */}
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-slate-400 font-bold mr-1">Filter Tracks:</span>
+          {activeRoleGraph.tracks.map(track => (
+            <button
+              key={track}
+              onClick={() => setSelectedTrack(track)}
+              className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                selectedTrack === track
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+              }`}
+            >
+              {track}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. VISUAL NODE GRAPH / FLOWCHART (MATCHING ROADMAP.SH TREE STRUCTURE) */}
+      <div className="relative glass-card rounded-3xl p-6 sm:p-10 space-y-12 overflow-x-auto border-2 border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white via-slate-50/50 to-white dark:from-slate-950 dark:via-slate-900/40 dark:to-slate-950">
+        
+        {/* Visual Root Marker */}
+        <div className="text-center space-y-2">
+          <div className="inline-block px-5 py-2 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-black text-sm uppercase tracking-wider shadow-md">
+            Start {activeRoleGraph.roleTitle} Roadmap
+          </div>
+          <div className="w-0.5 h-8 bg-slate-300 dark:bg-slate-700 mx-auto" />
+        </div>
+
+        {/* Sections Sequence */}
+        <div className="space-y-16 max-w-4xl mx-auto">
+          {activeRoleGraph.sections.map((section, sIdx) => {
+            return (
+              <div key={section.id} className="relative space-y-6">
+                {/* Section Title Pill */}
+                <div className="flex items-center gap-3">
+                  <div className="px-3.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+                    {section.title}
+                  </div>
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+                </div>
+
+                {/* Topics Row (Yellow Boxes like roadmap.sh) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {section.nodes.map(node => {
+                    const isDone = completedNodeIds[node.id];
+
+                    return (
+                      <div
+                        key={node.id}
+                        onClick={() => setInspectedNode(node)}
+                        className={`group relative p-4 rounded-xl cursor-pointer transition-all duration-200 border-2 select-none flex flex-col justify-between ${
+                          isDone
+                            ? 'bg-amber-300 dark:bg-amber-400 text-slate-950 border-emerald-500 shadow-md ring-2 ring-emerald-500/30'
+                            : 'bg-amber-400 hover:bg-amber-300 text-slate-950 border-amber-500 hover:border-slate-900 shadow-md hover:-translate-y-1'
+                        }`}
+                      >
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black uppercase tracking-wider bg-slate-950 text-white px-2 py-0.5 rounded">
+                              {node.track}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => toggleNodeCompletion(e, node.id)}
+                              className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                                isDone 
+                                  ? 'bg-emerald-600 text-white font-bold' 
+                                  : 'bg-slate-950/20 hover:bg-slate-950/40 text-slate-900'
+                              }`}
+                              title={isDone ? "Completed" : "Mark as completed"}
+                            >
+                              <Check className="w-3.5 h-3.5 stroke-[3]" />
+                            </button>
+                          </div>
+
+                          <h4 className="font-extrabold text-sm text-slate-950 leading-tight">
+                            {node.title}
+                          </h4>
+                          <p className="text-[11px] text-slate-800 line-clamp-2 leading-snug">
+                            {node.description}
+                          </p>
+                        </div>
+
+                        <div className="pt-2 mt-2 border-t border-slate-950/20 flex items-center justify-between text-[10px] font-bold text-slate-900">
+                          <span>{node.duration || '2 Weeks'}</span>
+                          <span className="text-slate-950 group-hover:underline">Click for Curriculum →</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Vertical Connector Down to Checkpoint */}
+                <div className="flex flex-col items-center py-1">
+                  <div className="w-0.5 h-6 bg-slate-400 dark:bg-slate-600" />
+                  <ArrowDown className="w-4 h-4 text-slate-400 -mt-1" />
+                </div>
+
+                {/* Checkpoint Node (Dark/Black Box like roadmap.sh) */}
+                {section.checkpoint && (
+                  <div
+                    onClick={() => setInspectedNode(section.checkpoint)}
+                    className={`relative p-5 rounded-2xl cursor-pointer transition-all duration-300 border-2 select-none group max-w-2xl mx-auto ${
+                      completedNodeIds[section.checkpoint.id]
+                        ? 'bg-slate-900 text-white border-emerald-500 ring-2 ring-emerald-500/40 shadow-xl'
+                        : 'bg-slate-900 hover:bg-slate-850 text-white border-slate-700 hover:border-amber-400 shadow-xl hover:-translate-y-0.5'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950">
+                            Practical Project
+                          </span>
+                          <h4 className="font-extrabold text-sm text-white group-hover:text-amber-300 transition-colors">
+                            {section.checkpoint.title}
+                          </h4>
+                        </div>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          {section.checkpoint.description}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => toggleNodeCompletion(e, section.checkpoint.id)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                            completedNodeIds[section.checkpoint.id]
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                          }`}
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>{completedNodeIds[section.checkpoint.id] ? 'Verified' : 'Verify'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {section.checkpoint.deliverable && (
+                      <div className="pt-3 mt-3 border-t border-slate-800 flex flex-wrap gap-2">
+                        {section.checkpoint.deliverable.map((del, dIdx) => (
+                          <span 
+                            key={dIdx}
+                            className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-300 border border-slate-700"
+                          >
+                            ✓ {del}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Section Separator */}
+                {sIdx < activeRoleGraph.sections.length - 1 && (
+                  <div className="flex flex-col items-center pt-2">
+                    <div className="w-0.5 h-8 border-l-2 border-dashed border-slate-400 dark:border-slate-600" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Completion Milestone Finish Flag */}
+        <div className="text-center pt-8 border-t border-slate-200 dark:border-slate-800 space-y-3">
+          <div className="w-14 h-14 mx-auto rounded-3xl gradient-brand flex items-center justify-center text-white shadow-xl shadow-brand-500/30">
+            <Award className="w-8 h-8" />
+          </div>
+          <h3 className="text-xl font-black text-slate-900 dark:text-white">
+            {activeRoleGraph.roleTitle} Capstone Ready!
+          </h3>
+          <p className="text-xs text-slate-500 max-w-md mx-auto">
+            Completing all topic nodes and verified checkpoints qualifies you for job placement matching across verified tech industry partners.
+          </p>
+        </div>
+      </div>
+
+      {/* 4. MODAL / INSPECTION DRAWER FOR CLICKED TOPIC OR CHECKPOINT */}
+      {inspectedNode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-xl rounded-3xl glass-panel shadow-2xl border border-amber-400/40 overflow-hidden flex flex-col max-h-[85vh]">
+            {/* Modal Header */}
+            <div className={`p-5 flex items-center justify-between ${
+              inspectedNode.type === 'topic' ? 'bg-amber-400 text-slate-950' : 'bg-slate-900 text-white'
+            }`}>
+              <div className="flex items-center gap-2.5">
+                <span className="w-3 h-3 rounded-full bg-slate-950" />
+                <div>
+                  <h3 className="font-black text-base leading-tight">
+                    {inspectedNode.title}
+                  </h3>
+                  <p className="text-[11px] opacity-80">
+                    Track: {inspectedNode.track} • {inspectedNode.type === 'topic' ? 'Core Competency' : 'Practical Project'}
+                  </p>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setInspectedNode(null)} 
+                className="p-1 rounded-lg hover:bg-black/10 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-5 text-xs">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                  Description & Roadmap Context
+                </span>
+                <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-xs">
+                  {inspectedNode.description}
+                </p>
+              </div>
+
+              {/* Courses if available */}
+              {inspectedNode.courses && inspectedNode.courses.length > 0 && (
+                <div className="space-y-2.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-brand-600" />
+                    Recommended Accredited Courses & Modules
+                  </span>
+                  <div className="space-y-2">
+                    {inspectedNode.courses.map((course, cIdx) => (
+                      <div 
+                        key={cIdx} 
+                        className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between"
+                      >
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white">{course.name}</p>
+                          <p className="text-[10px] text-slate-500">{course.provider} • {course.duration}</p>
+                        </div>
+                        <a 
+                          href={course.url} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="px-2.5 py-1 rounded-lg text-xs font-semibold text-brand-600 hover:underline flex items-center gap-1"
+                        >
+                          <span>Open</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tutorials */}
+              {inspectedNode.tutorials && (
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <Code2 className="w-3.5 h-3.5 text-purple-600" />
+                    Recommended Deep Dive Tutorials
+                  </span>
+                  <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
+                    {inspectedNode.tutorials.map((tut, tIdx) => (
+                      <li key={tIdx}>{tut}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Deliverables if checkpoint */}
+              {inspectedNode.deliverable && (
+                <div className="space-y-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
+                    Proof of Work Checklist:
+                  </span>
+                  <div className="space-y-1.5">
+                    {inspectedNode.deliverable.map((del, dIdx) => (
+                      <div key={dIdx} className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                        <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>{del}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons inside modal */}
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                <button
+                  onClick={(e) => {
+                    toggleNodeCompletion(e, inspectedNode.id);
+                    setInspectedNode(null);
+                  }}
+                  className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
+                    completedNodeIds[inspectedNode.id]
+                      ? 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      : 'gradient-brand text-white shadow-md'
+                  }`}
+                >
+                  <Check className="w-4 h-4" />
+                  <span>{completedNodeIds[inspectedNode.id] ? 'Mark Incomplete' : 'Mark as Completed'}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    openAssessment(inspectedNode.title.split(' ')[0] || 'JavaScript');
+                    setInspectedNode(null);
+                  }}
+                  className="px-4 py-2.5 rounded-xl border border-purple-200 dark:border-purple-800 text-xs font-bold text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/60 transition-colors flex items-center gap-1.5"
+                >
+                  <Award className="w-4 h-4" />
+                  <span>Take Quiz</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. FLOATING AI TUTOR BAR (EXACT FEATURE SHOWN AT BOTTOM OF IMAGE 2) */}
+      <div className="sticky bottom-4 z-30 max-w-md mx-auto">
+        <div 
+          onClick={toggleChat}
+          className="p-3.5 rounded-2xl bg-slate-900 text-white border-2 border-amber-400 shadow-2xl flex items-center justify-between gap-3 cursor-pointer hover:scale-105 transition-all select-none"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-400 flex items-center justify-center text-slate-950 font-bold shadow">
+              <Bot className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold flex items-center gap-1.5">
+                <span>AI Tutor for {activeRoleGraph.roleTitle}</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              </p>
+              <p className="text-[10px] text-slate-400">Have a question about this roadmap? Click here</p>
+            </div>
+          </div>
+          <span className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-400 text-slate-950">
+            Ask
+          </span>
+        </div>
       </div>
     </div>
   );

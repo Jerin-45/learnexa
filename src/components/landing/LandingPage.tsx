@@ -28,7 +28,12 @@ import {
   Users,
   Briefcase,
   Layers,
-  ChevronRight
+  Clock,
+  Calendar,
+  Search,
+  Plus,
+  ChevronRight,
+  ExternalLink
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -38,35 +43,17 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
   const { setActiveTab, careers, setCareerGoal, updateCurrentUser, switchProfile, showNotification } = useApp();
 
-  // Inline Quick Sign Up / Sign In state on Home
-  const [authTab, setAuthTab] = useState<'signup' | 'signin'>('signup');
-  const [inlineName, setInlineName] = useState('');
-  const [inlineEmail, setInlineEmail] = useState('');
-  const [inlinePassword, setInlinePassword] = useState('');
-  const [inlineCareer, setInlineCareer] = useState(careers[0]?.id || 'full-stack-developer');
+  const [heroEmail, setHeroEmail] = useState('');
 
-  const handleInlineAuthSubmit = (e: React.FormEvent) => {
+  const handleHeroEnroll = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inlineEmail) return;
-
-    if (authTab === 'signup') {
-      const name = inlineName.trim() || inlineEmail.split('@')[0];
-      updateCurrentUser({
-        name,
-        email: inlineEmail,
-        careerGoal: inlineCareer
-      });
-      setCareerGoal(inlineCareer);
-      showNotification(`Account created for ${name}! Welcome to Learnexa.`);
-      setActiveTab('dashboard');
-    } else {
-      updateCurrentUser({
-        email: inlineEmail,
-        name: inlineEmail.split('@')[0]
-      });
-      showNotification(`Welcome back! Signed in successfully.`);
-      setActiveTab('dashboard');
-    }
+    if (!heroEmail) return;
+    updateCurrentUser({
+      email: heroEmail,
+      name: heroEmail.split('@')[0]
+    });
+    showNotification(`Welcome to Learnexa, ${heroEmail.split('@')[0]}!`);
+    setActiveTab('dashboard');
   };
 
   const features = [
@@ -159,241 +146,307 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
 
   return (
     <div className="space-y-24 pb-20 overflow-hidden">
-      {/* 1. HERO SECTION: IMMEDIATE VISION, GOAL, RELATABLE PICTURE & QUICK AUTH */}
-      <section className="relative pt-8 pb-16 lg:pt-14 lg:pb-20">
-        {/* Ambient background glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-brand-500/20 via-purple-500/20 to-pink-500/10 blur-[150px] rounded-full pointer-events-none -z-10" />
+      {/* 1. HERO SECTION (MATCHING EXACT DRIBBBLE SKILLSYNC AI AESTHETIC FROM USER IMAGE 1) */}
+      <section className="relative pt-12 pb-16 lg:pt-20 lg:pb-28 text-center">
+        {/* Soft radial blue/indigo ambient glow in center */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[780px] h-[480px] bg-gradient-to-tr from-brand-400/20 via-indigo-400/20 to-purple-400/15 blur-[160px] rounded-full pointer-events-none -z-10" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          {/* Top Hero Grid: Pitch + Inline Sign Up/Sign In Card */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            {/* Left Col (7 Cols): Headline, Vision & Goal Highlight */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-200 dark:border-purple-800/80 bg-white/80 dark:bg-purple-950/40 shadow-sm">
-                <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 animate-pulse" />
-                <span className="text-xs font-bold text-slate-800 dark:text-purple-200">
-                  Welcome to Learnexa
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
-                <span className="text-xs text-brand-600 dark:text-brand-400 font-semibold">
-                  Personalized AI Career Platform
-                </span>
-              </div>
+        <div className="max-w-4xl mx-auto px-4 space-y-6">
+          {/* Centered Heading */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15]">
+            Unlock your potential with{' '}
+            <span className="gradient-text block sm:inline">
+              AI-Powered learning
+            </span>
+          </h1>
 
-              {/* Title */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
-                Discover Your Skills.{' '}
-                <span className="gradient-text block mt-1">
-                  Build Your Future.
-                </span>
-              </h1>
+          {/* Centered Subtitle */}
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
+            Personalised courses and expert-driven insights to help you master new skills and accelerate your career.
+          </p>
 
-              {/* Subtitle */}
-              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Stop guessing what to learn next. <strong>Learnexa</strong> deploys an autonomous 4-agent AI system that audits your skill gaps, benchmarks your abilities against live tech hiring standards, and builds your adaptive learning roadmap.
-              </p>
+          {/* Centered Pill Email Input Bar (Exact match to Image 1) */}
+          <form 
+            onSubmit={handleHeroEnroll}
+            className="max-w-md mx-auto p-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-brand-500/10 flex items-center justify-between transition-all focus-within:ring-2 focus-within:ring-brand-500"
+          >
+            <input 
+              type="email"
+              placeholder="Personal email"
+              value={heroEmail}
+              onChange={e => setHeroEmail(e.target.value)}
+              className="px-5 py-2.5 bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none flex-1"
+              required
+            />
+            <button
+              type="submit"
+              className="px-6 py-3 rounded-full text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-500/25 transition-all hover:scale-105 shrink-0"
+            >
+              Enroll for free
+            </button>
+          </form>
 
-              {/* VISION & GOAL HERO SPOTLIGHT CARD */}
-              <div className="p-5 rounded-2xl glass-card border border-brand-500/30 bg-gradient-to-br from-brand-50/60 via-white/70 to-purple-50/60 dark:from-slate-900/80 dark:via-slate-900/60 dark:to-purple-950/30 text-left space-y-3.5 shadow-md">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
-                  <Target className="w-4 h-4 text-brand-600 dark:text-brand-400" />
-                  <span>Our Vision & Strategic Goal</span>
+          {/* Disclaimer */}
+          <p className="text-[11px] text-slate-400">
+            By submitting this form, you agree to the Learnexa <span className="underline cursor-pointer">Terms</span> & <span className="underline cursor-pointer">Privacy Policy</span>.
+          </p>
+
+          {/* 1-Click Demo Persona Pills */}
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-xs">
+            <span className="text-slate-400 text-[11px]">Or test 1-click persona:</span>
+            <button 
+              type="button" 
+              onClick={() => { switchProfile('alex'); setActiveTab('dashboard'); }}
+              className="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+            >
+              Alex (Full Stack)
+            </button>
+            <button 
+              type="button" 
+              onClick={() => { switchProfile('sarah'); setActiveTab('dashboard'); }}
+              className="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+            >
+              Sarah (AI Eng)
+            </button>
+            <button 
+              type="button" 
+              onClick={() => { switchProfile('david'); setActiveTab('dashboard'); }}
+              className="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+            >
+              David (Cyber)
+            </button>
+          </div>
+        </div>
+
+        {/* 2. FLOATING REALISTIC STUDENT DASHBOARD SHOWCASE MOCKUP (EXACT MATCH TO IMAGE 1) */}
+        <div className="max-w-6xl mx-auto px-4 pt-12 animate-float">
+          <div className="rounded-3xl p-1 bg-gradient-to-b from-slate-200/80 via-white to-slate-200/80 dark:from-slate-700 dark:via-slate-900 dark:to-slate-800 shadow-2xl shadow-brand-500/10">
+            <div className="rounded-[22px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 overflow-hidden text-left shadow-inner">
+              
+              {/* Window Controls Bar */}
+              <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-900/60">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-rose-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-amber-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
+                  <span className="text-[11px] font-mono text-slate-400 ml-2">app.learnexa.ai/dashboard</span>
                 </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div className="space-y-1 border-l-2 border-brand-500 pl-3">
-                    <p className="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-                      <Eye className="w-3.5 h-3.5 text-brand-600" />
-                      Our Vision
-                    </p>
-                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-[11px]">
-                      To bridge the gap between classroom theory and real tech careers by eliminating "tutorial hell" with personalized, autonomous AI intelligence.
-                    </p>
-                  </div>
-
-                  <div className="space-y-1 border-l-2 border-purple-500 pl-3">
-                    <p className="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-                      <Rocket className="w-3.5 h-3.5 text-purple-600" />
-                      Our Goal
-                    </p>
-                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-[11px]">
-                      Diagnose real skill gaps against industry benchmarks, deliver adaptive roadmaps, and empower students to ship verified GitHub portfolio projects.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Direct Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-1">
-                <button
-                  onClick={() => onOpenAuth ? onOpenAuth('signup') : setActiveTab('dashboard')}
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-2xl font-bold text-sm gradient-brand shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
-                >
-                  <User className="w-4 h-4" />
-                  <span>Sign Up Free</span>
-                </button>
-
-                <button
-                  onClick={() => onOpenAuth ? onOpenAuth('login') : setActiveTab('dashboard')}
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-bold text-sm border border-slate-300 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 transition-all flex items-center justify-center gap-2"
-                >
-                  <Lock className="w-4 h-4 text-purple-500" />
-                  <span>Sign In</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('dashboard')}
-                  className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
-                >
-                  <span>Launch Student Demo →</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Right Col (5 Cols): Relatable Student Visual + Quick Auth Form */}
-            <div className="lg:col-span-5 space-y-5">
-              {/* Relatable Photo Banner with Live Badges */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-brand-500/30 group">
-                <img 
-                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=80" 
-                  alt="Students learning, collaborating and coding on computers"
-                  className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-700" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent" />
-                
-                <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                    <span className="font-extrabold text-[11px] text-white">Join 12,000+ Students Upskilling</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-600 text-white">
-                    4-Agent AI
-                  </span>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Live AI Mesh Active</span>
                 </div>
               </div>
 
-              {/* Interactive Sign Up / Sign In Quick Box */}
-              <div className="glass-card rounded-3xl p-6 shadow-xl border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-xl">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
-                  <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
-                    {authTab === 'signup' ? 'Create Your Account' : 'Sign In to Your Path'}
-                  </h3>
-                  <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">
-                    <button
-                      type="button"
-                      onClick={() => setAuthTab('signup')}
-                      className={`px-3 py-1 rounded-lg transition-all ${
-                        authTab === 'signup' ? 'gradient-brand text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                      }`}
+              {/* Main Dashboard Layout Preview */}
+              <div className="grid grid-cols-12 min-h-[460px]">
+                {/* Left Mini Sidebar */}
+                <div className="col-span-12 md:col-span-3 border-r border-slate-100 dark:border-slate-800 p-4 space-y-6 hidden md:block bg-slate-50/40 dark:bg-slate-900/30">
+                  <div className="flex items-center gap-2 px-2">
+                    <div className="w-7 h-7 rounded-lg gradient-brand flex items-center justify-center text-white">
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="font-extrabold text-sm text-slate-900 dark:text-white">Learnexa</span>
+                  </div>
+
+                  <div className="space-y-1 text-xs font-semibold">
+                    <button 
+                      onClick={() => setActiveTab('dashboard')}
+                      className="w-full text-left px-3 py-2 rounded-xl bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-300 font-bold flex items-center gap-2"
                     >
-                      Sign Up
+                      <BarChart3 className="w-4 h-4" />
+                      <span>Dashboard</span>
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setAuthTab('signin')}
-                      className={`px-3 py-1 rounded-lg transition-all ${
-                        authTab === 'signin' ? 'gradient-brand text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                      }`}
+                    <button 
+                      onClick={() => setActiveTab('roadmap')}
+                      className="w-full text-left px-3 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
                     >
-                      Sign In
+                      <GitFork className="w-4 h-4" />
+                      <span>My Roadmaps</span>
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('progress')}
+                      className="w-full text-left px-3 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+                    >
+                      <Award className="w-4 h-4" />
+                      <span>Achievements</span>
                     </button>
                   </div>
-                </div>
 
-                <form onSubmit={handleInlineAuthSubmit} className="space-y-3">
-                  {authTab === 'signup' && (
-                    <div>
-                      <div className="relative">
-                        <User className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                        <input
-                          type="text"
-                          placeholder="Full Name (e.g. Alex Morgan)"
-                          value={inlineName}
-                          onChange={e => setInlineName(e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
-                        />
+                  <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800/50 space-y-2">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 px-2 block">
+                      Analytics
+                    </span>
+                    <div className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                      <div className="px-3 py-1.5 flex items-center gap-2">
+                        <TrendingUp className="w-3.5 h-3.5 text-slate-400" />
+                        <span>My Progress</span>
+                      </div>
+                      <div className="px-3 py-1.5 flex items-center gap-2">
+                        <Zap className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Skill Analysis</span>
                       </div>
                     </div>
-                  )}
+                  </div>
+                </div>
 
-                  <div>
-                    <div className="relative">
-                      <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                      <input
-                        type="email"
-                        placeholder="Email address"
-                        value={inlineEmail}
-                        onChange={e => setInlineEmail(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
-                        required
+                {/* Center & Right Content (Matching Image 1) */}
+                <div className="col-span-12 md:col-span-9 p-5 sm:p-6 space-y-6">
+                  {/* Top Bar inside mockup */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                      <input 
+                        type="text" 
+                        readOnly 
+                        value="Search for courses, topics, roadmaps..." 
+                        className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] text-slate-500 outline-none" 
                       />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right hidden sm:block">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white">George V.</p>
+                        <p className="text-[10px] text-brand-600 dark:text-brand-400 font-semibold">Pro Learner</p>
+                      </div>
+                      <div className="w-8 h-8 rounded-full gradient-brand flex items-center justify-center font-bold text-xs text-white">
+                        G
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="relative">
-                      <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                      <input
-                        type="password"
-                        placeholder="Password"
-                        value={inlinePassword}
-                        onChange={e => setInlinePassword(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  {authTab === 'signup' && (
+                  {/* Welcome Greeting Banner */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <select
-                        value={inlineCareer}
-                        onChange={e => setInlineCareer(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
-                      >
-                        {careers.map(c => (
-                          <option key={c.id} value={c.id}>{c.title}</option>
-                        ))}
-                      </select>
+                      <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                        Welcome Back, George! 👋
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Your current progress & weekly learning activity
+                      </p>
                     </div>
-                  )}
+                    <button
+                      onClick={() => setActiveTab('dashboard')}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 text-white flex items-center gap-1.5 hover:bg-brand-700 transition-colors self-start sm:self-auto shadow-sm"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Open Full Dashboard</span>
+                    </button>
+                  </div>
 
-                  <button
-                    type="submit"
-                    className="w-full py-2.5 rounded-xl font-bold text-xs gradient-brand text-white shadow-md hover:scale-[1.01] transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <span>{authTab === 'signup' ? 'Sign Up & Generate Roadmap' : 'Sign In to Dashboard'}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </form>
+                  {/* 3 Top Stat Cards (Exact match to Image 1: 42.5 hrs, 10 courses, 1,250 skill points) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/40 space-y-1">
+                      <div className="flex items-center justify-between text-xs font-semibold text-blue-700 dark:text-blue-300">
+                        <span>Learning Hours</span>
+                        <Clock className="w-4 h-4 text-blue-500" />
+                      </div>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">42.5</p>
+                      <p className="text-[10px] text-emerald-600 font-bold">+12.5% last week</p>
+                    </div>
 
-                {/* 1-Click Demo Personas */}
-                <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800/80 text-center space-y-1.5">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
-                    Or 1-Click Instant Demo Login:
-                  </span>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => { switchProfile('alex'); setActiveTab('dashboard'); }}
-                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 text-center"
-                    >
-                      Alex (Full Stack)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { switchProfile('sarah'); setActiveTab('dashboard'); }}
-                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 text-center"
-                    >
-                      Sarah (AI Eng)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { switchProfile('david'); setActiveTab('dashboard'); }}
-                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 text-center"
-                    >
-                      David (Cyber)
-                    </button>
+                    <div className="p-4 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-900/40 space-y-1">
+                      <div className="flex items-center justify-between text-xs font-semibold text-purple-700 dark:text-purple-300">
+                        <span>Completed Courses</span>
+                        <BookOpen className="w-4 h-4 text-purple-500" />
+                      </div>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">10</p>
+                      <p className="text-[10px] text-emerald-600 font-bold">+2 this month</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 space-y-1">
+                      <div className="flex items-center justify-between text-xs font-semibold text-amber-700 dark:text-amber-300">
+                        <span>Skill Points</span>
+                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                      </div>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">1,250</p>
+                      <p className="text-[10px] text-emerald-600 font-bold">+200 this week</p>
+                    </div>
+                  </div>
+
+                  {/* Continue Learning + Current Course Grid (Exact match to Image 1) */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    {/* Continue Learning Thumbnails (8 Cols) */}
+                    <div className="lg:col-span-7 space-y-3">
+                      <span className="text-xs font-extrabold text-slate-900 dark:text-white">
+                        Continue Learning (3)
+                      </span>
+                      <div className="grid grid-cols-3 gap-2.5">
+                        <div 
+                          onClick={() => setActiveTab('roadmap')}
+                          className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 cursor-pointer group bg-slate-900 text-white"
+                        >
+                          <div className="h-16 bg-gradient-to-br from-indigo-500 to-purple-600 p-2 flex flex-col justify-between">
+                            <span className="text-[8px] uppercase tracking-wider font-bold opacity-80">UI/UX</span>
+                            <Play className="w-4 h-4 text-white group-hover:scale-125 transition-transform" />
+                          </div>
+                          <div className="p-1.5">
+                            <p className="text-[10px] font-bold truncate">Best Figma Courses</p>
+                            <p className="text-[8px] text-slate-400">Lesson 4 of 12</p>
+                          </div>
+                        </div>
+
+                        <div 
+                          onClick={() => setActiveTab('roadmap')}
+                          className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 cursor-pointer group bg-slate-900 text-white"
+                        >
+                          <div className="h-16 bg-gradient-to-br from-blue-600 to-cyan-600 p-2 flex flex-col justify-between">
+                            <span className="text-[8px] uppercase tracking-wider font-bold opacity-80">Dev</span>
+                            <Play className="w-4 h-4 text-white group-hover:scale-125 transition-transform" />
+                          </div>
+                          <div className="p-1.5">
+                            <p className="text-[10px] font-bold truncate">A New Way of Coding</p>
+                            <p className="text-[8px] text-slate-400">Lesson 2 of 8</p>
+                          </div>
+                        </div>
+
+                        <div 
+                          onClick={() => setActiveTab('roadmap')}
+                          className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 cursor-pointer group bg-slate-900 text-white"
+                        >
+                          <div className="h-16 bg-gradient-to-br from-emerald-500 to-teal-600 p-2 flex flex-col justify-between">
+                            <span className="text-[8px] uppercase tracking-wider font-bold opacity-80">AI</span>
+                            <Play className="w-4 h-4 text-white group-hover:scale-125 transition-transform" />
+                          </div>
+                          <div className="p-1.5">
+                            <p className="text-[10px] font-bold truncate">Deep Learning AI</p>
+                            <p className="text-[8px] text-slate-400">Lesson 6 of 15</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Current Active Course Card (5 Cols) */}
+                    <div className="lg:col-span-5 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-3">
+                      <div>
+                        <span className="text-[9px] uppercase font-extrabold tracking-wider text-slate-400">
+                          Current Focus
+                        </span>
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white mt-0.5">
+                          Figma design system
+                        </h4>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-[10px] font-bold">
+                          <span className="text-slate-500">Progress</span>
+                          <span className="text-brand-600 dark:text-brand-400">65%</span>
+                        </div>
+                        <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-brand-600 h-full rounded-full w-[65%]" />
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setActiveTab('roadmap')}
+                        className="w-full py-2 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-sm transition-all"
+                      >
+                        Continue Learning
+                      </button>
+
+                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800 text-[10px] text-slate-500">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">Next Up: </span>
+                        <span>How to design better components (40 min)</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -402,7 +455,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </div>
       </section>
 
-      {/* 2. DEDICATED "OUR VISION & STRATEGIC GOALS" SECTION WITH HIGH-RES RELATABLE PHOTOS */}
+      {/* 2. DEDICATED "OUR VISION & STRATEGIC GOALS" SECTION WITH RELATABLE PHOTOS */}
       <section id="vision-goals" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-3 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-950/80 text-brand-700 dark:text-brand-300 text-xs font-bold border border-brand-200 dark:border-brand-800">
@@ -468,7 +521,62 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </div>
       </section>
 
-      {/* 3. CORE PLATFORM FEATURES */}
+      {/* 3. INTERACTIVE ROLE ROADMAPS HIGHLIGHT (DIRECT JUMP TO ROADMAP.SH TREE VIEW) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200 dark:border-amber-800 mb-2">
+              <GitFork className="w-3.5 h-3.5" />
+              <span>Interactive Visual Flowcharts for Every Role</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+              Explore Roadmaps for Every Role
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Structured like roadmap.sh with yellow topic nodes, dark checkpoint deliverables, and quizzes.
+            </p>
+          </div>
+          <button
+            onClick={() => setActiveTab('roadmap')}
+            className="px-5 py-2.5 rounded-2xl text-xs font-bold gradient-brand text-white shadow-md hover:scale-105 transition-all flex items-center gap-2 self-start sm:self-auto"
+          >
+            <span>Launch Interactive Flowchart</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {[
+            { id: "full-stack-developer", title: "Full Stack Developer", icon: "🌐", nodes: "8 Checkpoints", color: "from-blue-500 to-cyan-500" },
+            { id: "ai-engineer", title: "AI Engineer", icon: "🤖", nodes: "6 Checkpoints", color: "from-purple-500 to-indigo-500" },
+            { id: "data-scientist", title: "Data Scientist", icon: "📊", nodes: "5 Checkpoints", color: "from-emerald-500 to-teal-500" },
+            { id: "ui-ux-designer", title: "UI/UX Designer", icon: "🎨", nodes: "6 Checkpoints", color: "from-pink-500 to-rose-500" },
+            { id: "cybersecurity-analyst", title: "Cybersecurity Analyst", icon: "🛡️", nodes: "6 Checkpoints", color: "from-amber-500 to-orange-500" }
+          ].map(r => (
+            <div 
+              key={r.id}
+              onClick={() => {
+                setCareerGoal(r.id);
+                setActiveTab('roadmap');
+              }}
+              className="glass-card rounded-2xl p-5 space-y-3 cursor-pointer hover:border-amber-400 hover:-translate-y-1 transition-all"
+            >
+              <div className="text-3xl">{r.icon}</div>
+              <div>
+                <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                  {r.title}
+                </h4>
+                <p className="text-[11px] text-slate-500">{r.nodes}</p>
+              </div>
+              <span className="text-[10px] font-bold text-amber-500 flex items-center gap-1">
+                View Node Graph →
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 4. CORE PLATFORM FEATURES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <h2 className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">
@@ -505,7 +613,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </div>
       </section>
 
-      {/* 4. LIVE MULTI-AGENT MESH VISUAL PREVIEW */}
+      {/* 5. MULTI-AGENT COLLABORATION MESH */}
       <section className="max-w-6xl mx-auto px-4">
         <div className="rounded-3xl p-1 bg-gradient-to-r from-brand-500 via-indigo-500 to-purple-600 shadow-2xl">
           <div className="rounded-[22px] bg-slate-900 text-white p-6 sm:p-10 space-y-8">
@@ -572,68 +680,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </div>
       </section>
 
-      {/* 5. IN-DEMAND CAREER EXPLORER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">
-              Target Career Goals
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
-              Select Your Ideal Career Track
-            </h2>
-          </div>
-          <button
-            onClick={() => setActiveTab('careers')}
-            className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
-          >
-            <span>View Full Market Requirements</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {careers.slice(0, 3).map(c => (
-            <div 
-              key={c.id} 
-              className="glass-card rounded-2xl p-6 space-y-4 flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                    {c.category}
-                  </span>
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                    {c.growthRate}
-                  </span>
-                </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {c.title}
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-                  {c.description}
-                </p>
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-                  <span className="text-slate-400">Average Salary: </span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{c.avgSalary}</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setCareerGoal(c.id);
-                  setActiveTab('roadmap');
-                }}
-                className="w-full py-2.5 rounded-xl text-xs font-bold bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/60 dark:hover:bg-brand-900/60 text-brand-700 dark:text-brand-300 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <span>Generate {c.title} Roadmap</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* 6. METRICS BAR */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl gradient-brand-subtle border border-slate-200/80 dark:border-slate-800/80 p-8 sm:p-12 shadow-sm">
@@ -690,7 +736,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </div>
       </section>
 
-      {/* 8. FINAL CALL TO ACTION (WITH BOTH SIGN UP & SIGN IN OPTIONS) */}
+      {/* 8. FINAL CALL TO ACTION */}
       <section className="max-w-5xl mx-auto px-4 text-center">
         <div className="rounded-3xl gradient-brand p-8 sm:p-14 shadow-2xl space-y-6 text-white relative overflow-hidden">
           <div className="relative z-10 space-y-4 max-w-xl mx-auto">
