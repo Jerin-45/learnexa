@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { 
-  Bot, 
-  Send, 
-  Sparkles, 
-  X, 
-  Maximize2, 
-  Minimize2, 
-  RotateCcw, 
-  User, 
-  CheckCircle2, 
+import {
+  Bot,
+  Send,
+  Sparkles,
+  X,
+  Maximize2,
+  Minimize2,
+  RotateCcw,
+  User,
+  CheckCircle2,
   ArrowRight,
   Zap,
   HelpCircle
@@ -18,15 +18,15 @@ import { ChatMessage } from '../../types';
 import { apiService } from '../../services/api';
 
 export const MentorChatbot: React.FC = () => {
-  const { 
-    currentUser, 
-    currentCareer, 
-    isChatOpen, 
-    toggleChat, 
-    agentData, 
-    openAssessment, 
-    setCareerGoal, 
-    setActiveTab 
+  const {
+    currentUser,
+    currentCareer,
+    isChatOpen,
+    toggleChat,
+    agentData,
+    openAssessment,
+    setCareerGoal,
+    setActiveTab
   } = useApp();
 
   const [inputMessage, setInputMessage] = useState('');
@@ -175,8 +175,8 @@ export const MentorChatbot: React.FC = () => {
           const isUser = msg.sender === 'user';
 
           return (
-            <div 
-              key={msg.id} 
+            <div
+              key={msg.id}
               className={`flex gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}
             >
               {!isUser && (
@@ -230,7 +230,7 @@ export const MentorChatbot: React.FC = () => {
       </div>
 
       {/* Input Bar */}
-      <form 
+      <form
         onSubmit={(e) => { e.preventDefault(); handleSend(); }}
         className="p-3 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 flex items-center gap-2"
       >
