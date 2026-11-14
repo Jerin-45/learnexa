@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 
 process.env.ROLLUP_SKIP_NODEJS_NATIVE = 'true';
 
-console.log('🚀 Starting SkillPath AI Full Stack Platform...');
+console.log('🚀 Starting Learnexa Full Stack Platform...');
 
 const backend = spawn('node', ['server/index.js'], {
   stdio: 'inherit',

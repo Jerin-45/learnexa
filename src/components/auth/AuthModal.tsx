@@ -16,9 +16,10 @@ import {
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialMode?: 'login' | 'signup' | 'supabase';
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login' }) => {
   const { 
     currentUser, 
     updateCurrentUser, 
@@ -28,7 +29,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     showNotification 
   } = useApp();
 
-  const [mode, setMode] = useState<'login' | 'signup' | 'supabase'>('login');
+  const [mode, setMode] = useState<'login' | 'signup' | 'supabase'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -36,6 +37,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [selectedCareer, setSelectedCareer] = useState(currentUser.careerGoal);
   const [supabaseUrl, setSupabaseUrl] = useState('');
   const [supabaseKey, setSupabaseKey] = useState('');
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+    }
+  }, [isOpen, initialMode]);
 
   if (!isOpen) return null;
 
@@ -66,8 +73,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   const handleSaveSupabase = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('skillpath_supabase_url', supabaseUrl);
-    localStorage.setItem('skillpath_supabase_key', supabaseKey);
+    localStorage.setItem('learnexa_supabase_url', supabaseUrl);
+    localStorage.setItem('learnexa_supabase_key', supabaseKey);
     showNotification('Supabase connection parameters saved!');
     onClose();
   };
@@ -80,7 +87,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-white" />
             <h3 className="font-extrabold text-base">
-              SkillPath AI Authentication
+              Learnexa Authentication
             </h3>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/20 transition-colors">

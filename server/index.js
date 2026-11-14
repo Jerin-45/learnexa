@@ -58,7 +58,7 @@ const DEMO_USERS = [
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
-    name: 'SkillPath AI Core Service',
+    name: 'Learnexa Core Service',
     version: '1.0.0',
     agentsOnline: [
       'Skill Analysis Agent',
@@ -127,7 +127,7 @@ app.post('/api/chat', async (req, res) => {
         "Take a Skill Assessment"
       ];
     } else if (lower.includes("career") || lower.includes("switch") || lower.includes("goal")) {
-      reply = `You're currently targeted for **${careerGoal}**. Switching or exploring alternative paths is seamless on SkillPath AI! \n\nFor example, if you consider **AI Engineer**, your analytical skills will carry over, but you will need Python and Deep Learning foundations. If you look at **UI/UX Designer**, your HTML/CSS experience is an enormous asset.\n\nWould you like to compare side-by-side or switch your target role now?`;
+      reply = `You're currently targeted for **${careerGoal}**. Switching or exploring alternative paths is seamless on Learnexa! \n\nFor example, if you consider **AI Engineer**, your analytical skills will carry over, but you will need Python and Deep Learning foundations. If you look at **UI/UX Designer**, your HTML/CSS experience is an enormous asset.\n\nWould you like to compare side-by-side or switch your target role now?`;
       suggestedActions = [
         "Compare Full Stack vs AI Engineer",
         "Switch goal to Data Scientist",
@@ -153,7 +153,7 @@ Which one would you like to build first? I can generate a complete step-by-step 
         "Check my current badges"
       ];
     } else {
-      reply = `Great question, ${name}! As your dedicated SkillPath AI Mentor, I'm here to ensure you stay ahead of your learning milestones for **${careerGoal}**.\n\nWith a current completion rate of **${completionRate}%**, you're making steady headway. Our four AI agents are continually monitoring your progress, quiz scores, and practice hours to calibrate your personal roadmap.\n\nWhat would you like to conquer today?`;
+      reply = `Great question, ${name}! As your dedicated Learnexa AI Mentor, I'm here to ensure you stay ahead of your learning milestones for **${careerGoal}**.\n\nWith a current completion rate of **${completionRate}%**, you're making steady headway. Our four AI agents are continually monitoring your progress, quiz scores, and practice hours to calibrate your personal roadmap.\n\nWhat would you like to conquer today?`;
       suggestedActions = [
         "What should I study today?",
         "Review my skill gaps",
@@ -163,7 +163,7 @@ Which one would you like to build first? I can generate a complete step-by-step 
 
     res.json({
       success: true,
-      sender: "SkillPath AI Mentor",
+      sender: "Learnexa AI Mentor",
       reply,
       suggestedActions,
       timestamp: new Date().toISOString()
@@ -252,7 +252,7 @@ app.post('/api/auth/login', (req, res) => {
   const user = DEMO_USERS.find(u => u.email.toLowerCase() === (email || '').toLowerCase()) || DEMO_USERS[0];
   res.json({
     success: true,
-    token: "mock-jwt-token-skillpath-" + Date.now(),
+    token: "mock-jwt-token-learnexa-" + Date.now(),
     user
   });
 });
@@ -276,7 +276,7 @@ app.post('/api/auth/signup', (req, res) => {
   DEMO_USERS.push(newUser);
   res.json({
     success: true,
-    token: "mock-jwt-token-skillpath-" + Date.now(),
+    token: "mock-jwt-token-learnexa-" + Date.now(),
     user: newUser
   });
 });
@@ -289,5 +289,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 SkillPath AI Full-Stack Server listening on http://localhost:${PORT}`);
+  console.log(`🚀 Learnexa Full-Stack Server listening on http://localhost:${PORT}`);
 });

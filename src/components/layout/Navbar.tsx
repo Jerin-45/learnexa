@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 interface NavbarProps {
-  onOpenAuth: () => void;
+  onOpenAuth: (mode?: 'login' | 'signup') => void;
   onOpenProfile: () => void;
 }
 
@@ -62,10 +62,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenProfile }) => 
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">
-                SkillPath <span className="gradient-text font-black">AI</span>
+                Learn<span className="gradient-text font-black">exa</span>
               </span>
               <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-brand-100 text-brand-700 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
-                v2.4
+                AI v2.4
               </span>
             </div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block">
@@ -220,17 +220,32 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenProfile }) => 
             )}
           </div>
 
-          {/* Direct CTA */}
+          {/* Auth Controls: Sign In & Sign Up */}
+          <button
+            onClick={() => onOpenAuth('login')}
+            className="hidden sm:inline-flex px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+          >
+            Sign In
+          </button>
+
+          <button
+            onClick={() => onOpenAuth('signup')}
+            className="hidden md:inline-flex px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 border border-brand-500/50 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-all"
+          >
+            Sign Up
+          </button>
+
+          {/* Direct Dashboard CTA */}
           {activeTab === 'landing' ? (
             <button
               onClick={() => setActiveTab('dashboard')}
               className="px-4 py-2 rounded-xl text-xs font-bold gradient-brand shadow-md shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.02] transition-all"
             >
-              Enter Dashboard
+              Dashboard
             </button>
           ) : (
             <button
-              onClick={onOpenAuth}
+              onClick={() => onOpenAuth('login')}
               className="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
             >
               Auth / Sync
@@ -278,6 +293,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenProfile }) => 
               </button>
             );
           })}
+
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-2">
+            <button
+              onClick={() => { onOpenAuth('login'); setMobileMenuOpen(false); }}
+              className="w-full py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-center"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => { onOpenAuth('signup'); setMobileMenuOpen(false); }}
+              className="w-full py-2 rounded-xl text-xs font-bold gradient-brand text-white text-center shadow-sm"
+            >
+              Sign Up Free
+            </button>
+          </div>
         </div>
       )}
     </header>

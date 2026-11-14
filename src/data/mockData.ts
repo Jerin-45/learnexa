@@ -31,7 +31,7 @@ export const DEFAULT_CAREERS: Career[] = [
         description: "Master modern layout techniques including Flexbox, CSS Grid, responsive design principles, and accessibility (a11y).",
         courses: [
           { name: "Responsive Web Design Certification", provider: "freeCodeCamp", url: "https://www.freecodecamp.org", duration: "15 hrs" },
-          { name: "Modern CSS from Beginning to Pro", provider: "SkillPath Academy", url: "#", duration: "12 hrs" }
+          { name: "Modern CSS from Beginning to Pro", provider: "Learnexa Academy", url: "#", duration: "12 hrs" }
         ],
         tutorials: ["CSS Grid Deep Dive", "Building Fluid Responsive Layouts without Media Queries"],
         project: {
@@ -51,7 +51,7 @@ export const DEFAULT_CAREERS: Career[] = [
         description: "Deep dive into closures, prototypal inheritance, promises, async/await, DOM manipulation, and Event Loops.",
         courses: [
           { name: "JavaScript: The Hard Parts", provider: "Frontend Masters", url: "#", duration: "16 hrs" },
-          { name: "Complete JavaScript Mastery 2025", provider: "Udemy / SkillPath", url: "#", duration: "24 hrs" }
+          { name: "Complete JavaScript Mastery 2025", provider: "Udemy / Learnexa", url: "#", duration: "24 hrs" }
         ],
         tutorials: ["Event Loop and Microtasks in V8", "Functional Programming in Modern JS"],
         project: {
@@ -109,7 +109,7 @@ export const DEFAULT_CAREERS: Career[] = [
         duration: "2 Weeks",
         description: "Design production-ready REST APIs, JWT authentication, rate limiting, validation schemas, and error-handling middleware.",
         courses: [
-          { name: "Production Ready Node Express APIs", provider: "SkillPath Pro", url: "#", duration: "14 hrs" }
+          { name: "Production Ready Node Express APIs", provider: "Learnexa Pro", url: "#", duration: "14 hrs" }
         ],
         tutorials: ["Securing APIs with Helmet, CORS and JWT", "Clean Architecture in Express"],
         project: {
@@ -153,7 +153,7 @@ export const DEFAULT_CAREERS: Career[] = [
         ],
         tutorials: ["GitHub Actions Automated CI/CD", "Production Observability with OpenTelemetry"],
         project: {
-          title: "SkillPath AI Cloud Application",
+          title: "Learnexa AI Cloud Application",
           description: "Deploy an end-to-end full stack web application with containerization, automated testing, and custom domain SSL.",
           techStack: ["Docker", "GitHub Actions", "Vercel / Render"]
         },
@@ -707,13 +707,13 @@ export function generateLocalChatReply(message: string, userContext: any) {
     reply = `Building real-world projects is the fastest way to bridge skill gaps! For your current stage in **${careerGoal}**, our Learning Recommendation Agent suggests:\n\n1. **Collaborative Task Workspace** (React + State)\n2. **Financial Analytics Dashboard** (Async JS + Charts)\n3. **Secure E-Commerce API** (Express + PostgreSQL)\n\nWhich one would you like to add to your sprint?`;
     suggestedActions = ["Start Collaborative Workspace", "Start E-Commerce API", "View Project Specs"];
   } else {
-    reply = `Hi ${name}! As your dedicated SkillPath AI Mentor, I'm here to accelerate your journey to becoming a certified **${careerGoal}**.\n\nWith your completion rate at **${completionRate}%**, you're making steady headway. How can I help you today?`;
+    reply = `Hi ${name}! As your dedicated Learnexa AI Mentor, I'm here to accelerate your journey to becoming a certified **${careerGoal}**.\n\nWith your completion rate at **${completionRate}%**, you're making steady headway. How can I help you today?`;
     suggestedActions = ["Review my skill gaps", "What should I learn today?", "Take an assessment"];
   }
 
   return {
     success: true,
-    sender: "SkillPath AI Mentor",
+    sender: "Learnexa AI Mentor",
     reply,
     suggestedActions,
     timestamp: new Date().toISOString()

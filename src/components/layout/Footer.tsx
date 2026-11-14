@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <span className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white">
-                SkillPath <span className="gradient-text font-black">AI</span>
+                Learn<span className="gradient-text font-black">exa</span>
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -107,7 +107,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="pt-8 mt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-          <p>© 2025 SkillPath AI. Engineered for modern personalized education.</p>
+          <p>© 2025 Learnexa. Engineered for modern personalized education.</p>
           <div className="flex items-center gap-4">
             <span className="hover:text-brand-600 cursor-pointer">Privacy Policy</span>
             <span className="hover:text-brand-600 cursor-pointer">Terms of Service</span>

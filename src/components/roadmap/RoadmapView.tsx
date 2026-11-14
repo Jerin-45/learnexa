@@ -50,7 +50,7 @@ export const RoadmapView: React.FC = () => {
     }, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `SkillPath_${currentCareer.id}_Roadmap.json`);
+    downloadAnchor.setAttribute("download", `Learnexa_${currentCareer.id}_Roadmap.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();

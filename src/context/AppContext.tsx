@@ -37,7 +37,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Load saved user or default to Alex Morgan
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('skillpath_user');
+    const saved = localStorage.getItem('learnexa_user') || localStorage.getItem('skillpath_user');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -51,22 +51,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
   const [activeAssessmentSkill, setActiveAssessmentSkill] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState<boolean>(() => {
-    return localStorage.getItem('skillpath_theme') === 'dark';
+    return (localStorage.getItem('learnexa_theme') || localStorage.getItem('skillpath_theme')) === 'dark';
   });
   const [notification, setNotification] = useState<string | null>(null);
 
   // Sync to local storage
   useEffect(() => {
-    localStorage.setItem('skillpath_user', JSON.stringify(currentUser));
+    localStorage.setItem('learnexa_user', JSON.stringify(currentUser));
   }, [currentUser]);
 
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('skillpath_theme', 'dark');
+      localStorage.setItem('learnexa_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('skillpath_theme', 'light');
+      localStorage.setItem('learnexa_theme', 'light');
     }
   }, [darkMode]);
 

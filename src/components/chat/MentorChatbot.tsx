@@ -34,7 +34,7 @@ export const MentorChatbot: React.FC = () => {
     {
       id: 'm-init',
       sender: 'mentor',
-      text: `Hello ${currentUser.name.split(' ')[0]}! 👋 I'm your dedicated SkillPath AI Career Mentor. I have full context on your target career as a **${currentCareer.title}** and your ${currentUser.skills.length} verified skills.\n\nHow can I help accelerate your learning journey today?`,
+      text: `Hello ${currentUser.name.split(' ')[0]}! 👋 I'm your dedicated Learnexa AI Career Mentor. I have full context on your target career as a **${currentCareer.title}** and your ${currentUser.skills.length} verified skills.\n\nHow can I help accelerate your learning journey today?`,
       timestamp: 'Just now',
       suggestedActions: [
         "Explain my skill gaps",
@@ -145,7 +145,7 @@ export const MentorChatbot: React.FC = () => {
           <div>
             <div className="flex items-center gap-1.5">
               <h3 className="font-extrabold text-sm sm:text-base tracking-tight">
-                SkillPath AI Mentor
+                Learnexa AI Mentor
               </h3>
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             </div>

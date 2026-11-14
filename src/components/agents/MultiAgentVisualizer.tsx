@@ -59,7 +59,7 @@ export const MultiAgentVisualizer: React.FC = () => {
       icon: Compass,
       responsibility: "Compares audited skills with target career benchmark criteria, computes match vs gap percentages, and prioritizes essential roadblocks.",
       currentOutput: agentData?.careerMatch?.guidanceNote || `Calculated ${agentData?.careerMatch?.matchPercentage || 68}% career match for ${currentCareer.title}.`,
-      model: "SkillPath Matcher v3",
+      model: "Learnexa Matcher v3",
       latency: "62ms"
     },
     {

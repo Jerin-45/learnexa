@@ -17,20 +17,24 @@ import { CheckCircle2, Sparkles } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   const { activeTab, notification } = useApp();
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'login' | 'signup' }>({ isOpen: false, mode: 'login' });
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const openAuth = (mode: 'login' | 'signup' = 'login') => {
+    setAuthModal({ isOpen: true, mode });
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 selection:bg-brand-500 selection:text-white transition-colors duration-200">
       {/* Top Navbar */}
       <Navbar 
-        onOpenAuth={() => setAuthModalOpen(true)}
+        onOpenAuth={openAuth}
         onOpenProfile={() => setProfileModalOpen(true)}
       />
 
       {/* Main Dynamic View */}
       <main className="flex-1">
-        {activeTab === 'landing' && <LandingPage />}
+        {activeTab === 'landing' && <LandingPage onOpenAuth={openAuth} />}
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'skills' && <SkillAnalysis />}
         {activeTab === 'careers' && <CareerMatching />}
@@ -44,7 +48,11 @@ const MainContent: React.FC = () => {
 
       {/* Modals */}
       <AssessmentModal />
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      <AuthModal 
+        isOpen={authModal.isOpen} 
+        initialMode={authModal.mode} 
+        onClose={() => setAuthModal(prev => ({ ...prev, isOpen: false }))} 
+      />
       <ProfileSettingsModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
 
       {/* Global Notification Banner */}
