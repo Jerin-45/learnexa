@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-[#070b14] dark:text-slate-100 antialiased font-sans transition-colors duration-200;
+  }
+}
+
+.glass-panel {
+  @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 shadow-sm;
+}
+
+.glass-card {
+  @apply bg-white/70 dark:bg-slate-900/60 backdrop-blur-lg border border-slate-200/60 dark:border-slate-800/60 shadow-lg shadow-brand-500/5 hover:border-brand-500/40 transition-all duration-300;
+}
+
+.glass-card-hover {
+  @apply hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300;
+}
+
+.gradient-brand {
+  @apply bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 text-white;
+}
+
+.gradient-brand-subtle {
+  @apply bg-gradient-to-br from-brand-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900/90 dark:to-purple-950/20;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-indigo-500 to-purple-600 dark:from-brand-400 dark:via-indigo-300 dark:to-purple-400;
+}
+
+.glow-purple {
+  box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.25);
+}
+
+.glow-brand {
+  box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.25);
+}
+
+/* Custom modern scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
